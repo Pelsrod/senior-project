@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creation</title>
+    
+</head>
+
+<body>
+	<div class = "container">
+		<button onclick = "viewCharacter()">View Creation</button>
+		<button onclick = "backToHome()">Back To Homepage</button>
+		<button onclick = "createFile()">Create Character File</button>
+	</div>
+	<div id = "creationContainer">
+	</div>
+	<script>
+		let classCount = 1;
+		function viewCharacter(){
+			window.location.href = "viewingSenior.html";
+		}
+		function backToHome(){
+			window.location.href = "homepageSenior.html";
+		}
+		function loadCreation(){
+			const container = document.getElementById('creationContainer');
+			container.innerHTML = `
+				<div class = "input-group">
+					<label for="name">Name:</label>
+        				<textarea id="name" placeholder="Enter name here..."></textarea>
+				</div>
+
+				<div class = "input-group">
+					<label for="classCharacter">Class:</label>
+        				<textarea id="classCharacter" placeholder="Enter your class name here"></textarea>
+				</div>
+				<div class = "input-group">
+					<label for="characterLevel">Character Level:</label>
+        				<select id="characterLevel">
+                        			${Array.from({length: 20}, (_, i) => 
+                            			`<option value="${i + 1}">${i + 1}</option>`
+                        			).join('')}
+                    			</select>
+				</div>
+				<div class = "input-group">
+					<label for="level">Class Level:</label>
+        				<select id="level">
+                        			${Array.from({length: 20}, (_, i) => 
+                            			`<option value="${i + 1}">${i + 1}</option>`
+                        			).join('')}
+                    			</select>
+				</div>
+				<button onclick = "addClass()">Add Another class</button>
+				<button onclick = "removeClass()">Remove Previous class</button>
+			`;
+
+		}
+		function addClass(){
+			const totalLevel = document.getElementById('characterLevel').value;
+			const container = document.getElementById('creationContainer');
+			const newContainer = document.createElement('container');
+			newContainer.innerHTML = `
+				<div class = "input-group">
+					<label for="newClassCharacter">Class:</label>
+        				<textarea id="newClassCharacter" placeholder="Enter your class name here"></textarea>
+				</div>
+				<div class = "input-group">
+					<label for="newLevel">Class Level:</label>
+        				<select id="newLevel">
+                        			${Array.from({length: 20}, (_, i) => 
+                            			`<option value="${i + 1}">${i + 1}</option>`
+                        			).join('')}
+                    			</select>
+				</div>
+			`;
+			classCount += 1;
+			container.appendChild(newContainer);
+		}
+		function createFile(){
+			checkValid();
+		}
+		function checkValid(){
+			const characterName = document.getElementById('name').value;
+			const characterClass = document.getElementById('classCharacter').value;
+			const classLevel = parseInt(document.getElementById('level').value);
+			const totalLevel = parseInt(document.getElementById('characterLevel').value);
+			if(characterName == ''){
+				alert('You must name your character');
+				return;
+			}
+			if(classCount == 2){
+				let classTwoLevel = parseInt(document.getElementById('newLevel').value);
+				let classTwoName = document.getElementById('newClassCharacter').value;
+				if(classLevel + classTwoLevel != totalLevel){
+					alert('The levels of your classes must add together to match your total level');
+					return;
+				}
+				if(classTwoName == '' || characterClass == ''){
+					alert('Make sure the names of both classes are filled');
+					return;
+				}
+			}else if (classCount == 1){
+				if(classLevel != totalLevel){
+					alert('Your class level and character level must match');
+					return;
+				}
+				if(characterClass == ''){
+					alert('Your character must have a class');
+					return;
+				}
+			}else if (classCount > 2){
+				alert('No more than 2 classes per character is supported at this time');
+				return;
+			}	
+		}
+		function removeClass(){
+			const removeClass = document.getElementById('newClassCharacter');
+			const removeLevel = document.getElementById('newClassCharacter');
+			if (removeClass && removeClass.parentNode) {
+  				removeClass.parentNode.removeChild(removeClass);
+			}
+			if (removeLevel && removeLevel.parentNode) {
+  				removeLevel.parentNode.removeChild(removeLevel);
+			}
+			classCount -= 1;
+		}
+		loadCreation();
+	</script>
+</body>
+</html>
