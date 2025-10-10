@@ -17,12 +17,15 @@
 	</div>
 	<script>
 		let classCount = 1;
+
 		function viewCharacter(){
 			window.location.href = "viewingSenior.html";
 		}
+
 		function backToHome(){
 			window.location.href = "homepageSenior.html";
 		}
+
 		function loadCreation(){
 			const container = document.getElementById('creationContainer');
 			container.innerHTML = `
@@ -56,11 +59,19 @@
 			`;
 
 		}
+
 		function addClass(){
+			if(classCount >= 2){
+				alert('No more than 2 classes per character are supported at this time');
+				return;
+			}
+
 			const totalLevel = document.getElementById('characterLevel').value;
 			const container = document.getElementById('creationContainer');
-			const newContainer = document.createElement('container');
-			newContainer.innerHTML = `
+			const newBlock = document.createElement('div');
+			newBlock.classList.add('class-block');
+
+			newBlock.innerHTML = `
 				<div class = "input-group">
 					<label for="newClassCharacter">Class:</label>
         				<textarea id="newClassCharacter" placeholder="Enter your class name here"></textarea>
@@ -69,17 +80,32 @@
 					<label for="newLevel">Class Level:</label>
         				<select id="newLevel">
                         			${Array.from({length: 20}, (_, i) => 
-                            			`<option value="${i + 1}">${i + 1}</option>`
-                        			).join('')}
+                  	    				`<option value="${i + 1}">${i + 1}</option>`
+                        				).join('')}
                     			</select>
 				</div>
 			`;
+			container.appendChild(newBlock);
 			classCount += 1;
-			container.appendChild(newContainer);
 		}
+
+		function removeClass(){  
+			if (classCount <= 1){ 
+				alert('You have to have at least one class');
+				return;
+			}
+			
+			const container = document.getElementById('creationContainer');
+			const blocks = container.getElementsByClassName('class-block');
+			
+			container.removeChild(blocks[blocks.length - 1]);
+			classCount -= 1;
+		}
+
 		function createFile(){
 			checkValid();
 		}
+
 		function checkValid(){
 			const characterName = document.getElementById('name').value;
 			const characterClass = document.getElementById('classCharacter').value;
@@ -114,17 +140,7 @@
 				return;
 			}	
 		}
-		function removeClass(){
-			const removeClass = document.getElementById('newClassCharacter');
-			const removeLevel = document.getElementById('newClassCharacter');
-			if (removeClass && removeClass.parentNode) {
-  				removeClass.parentNode.removeChild(removeClass);
-			}
-			if (removeLevel && removeLevel.parentNode) {
-  				removeLevel.parentNode.removeChild(removeLevel);
-			}
-			classCount -= 1;
-		}
+
 		loadCreation();
 	</script>
 </body>
