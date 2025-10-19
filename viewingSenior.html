@@ -8,12 +8,35 @@
 </head>
 
 <body>
-	This will be the character navigation page for my senior project. As of now, there is such empty.
 	<button onclick = "backToHome()">Back To Homepage</button>
+	<button onclick = "viewSelectedCharacter()">View Selected Character</button>
 	<script>
 		function backToHome(){
 			window.location.href = "homepageSenior.html";
 		}
+
+		function checkLocalStorage(){
+			return false;
+		}
+
+		function loadCharacterList(){
+			return;
+		}
+
+		function viewSelectedCharacter(){
+			if(!checkLocalStorage()){
+				alert('Why did you not listen to the first pop up idiot?');
+			}else{
+				alert('not the expect outcome at this moment');
+			}
+		}
+
+		if(checkLocalStorage()){
+			loadCharacterList();
+		}else{
+			alert('There are not any characters to view yet');
+		}
+		
 	</script>
 </body>
 </html>

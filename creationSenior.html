@@ -11,7 +11,8 @@
 	<div class = "container">
 		<button onclick = "viewCharacter()">View Creation</button>
 		<button onclick = "backToHome()">Back To Homepage</button>
-		<button onclick = "createFile()">Create Character File</button>
+		<button onclick = "createFile()">Create Character</button>
+		<button onclick = "clearStorage()">Remove All Characters</button>
 	</div>
 	<div id = "creationContainer">
 	</div>
@@ -102,43 +103,76 @@
 			classCount -= 1;
 		}
 
+		function saveCharacter(){
+			const character = {
+				name: document.getElementById('name').value.trim(),
+				totalLevel: parseInt(document.getElementById('characterLevel').value),
+				classes: []
+			};
+			const primaryClass = {
+				className: document.getElementById('classCharacter').value.trim(),
+				classLevel: parseInt(document.getElementById('level').value)
+			};
+			character.classes.push(primaryClass);
+			if(classCount == 2){
+				const secondClass = {
+					className: document.getElementById('newClassCharacter').value.trim(),
+					classLevel: parseInt(document.getElementById('newLevel').value)
+				};
+				character.classes.push(secondClass);
+			}
+			let characters = JSON.parse(localStorage.getItem("characters")) || [];
+			characters.push(character);
+			localStorage.setItem("characters", JSON.stringify(characters));
+		}
+
 		function createFile(){
-			checkValid();
+			if(checkValid()){
+				saveCharacter();
+				alert('Character successfully created and ready to view');
+			}
 		}
 
 		function checkValid(){
-			const characterName = document.getElementById('name').value;
-			const characterClass = document.getElementById('classCharacter').value;
+			const characterName = document.getElementById('name').value.trim();
+			const characterClass = document.getElementById('classCharacter').value.trim();
 			const classLevel = parseInt(document.getElementById('level').value);
 			const totalLevel = parseInt(document.getElementById('characterLevel').value);
 			if(characterName == ''){
 				alert('You must name your character');
-				return;
+				return false;
+			}else{
+				if(classCount == 2){
+					let classTwoLevel = parseInt(document.getElementById('newLevel').value);
+					let classTwoName = document.getElementById('newClassCharacter').value.trim();
+					if(classLevel + classTwoLevel != totalLevel){
+						alert('The levels of your classes must add together to match your total level');
+						return false;
+					}
+					if(classTwoName == '' || characterClass == ''){
+						alert('Make sure the names of both classes are filled');
+						return false;
+					}
+				}else if (classCount == 1){
+					if(classLevel != totalLevel){
+						alert('Your class level and character level must match');
+						return false;
+					}
+					if(characterClass == ''){
+						alert('Your character must have a class');
+						return false;
+					}
+				}else if (classCount > 2){
+					alert('No more than 2 classes per character is supported at this time');
+					return false;
+				}
 			}
-			if(classCount == 2){
-				let classTwoLevel = parseInt(document.getElementById('newLevel').value);
-				let classTwoName = document.getElementById('newClassCharacter').value;
-				if(classLevel + classTwoLevel != totalLevel){
-					alert('The levels of your classes must add together to match your total level');
-					return;
-				}
-				if(classTwoName == '' || characterClass == ''){
-					alert('Make sure the names of both classes are filled');
-					return;
-				}
-			}else if (classCount == 1){
-				if(classLevel != totalLevel){
-					alert('Your class level and character level must match');
-					return;
-				}
-				if(characterClass == ''){
-					alert('Your character must have a class');
-					return;
-				}
-			}else if (classCount > 2){
-				alert('No more than 2 classes per character is supported at this time');
-				return;
-			}	
+			return true;	
+		}
+		
+		//for testing purposes so I don't clog my local storage, will later become a remove character function
+		function clearStorage(){
+			localStorage.clear();
 		}
 
 		loadCreation();
