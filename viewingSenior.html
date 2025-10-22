@@ -8,9 +8,13 @@
 </head>
 
 <body>
+	<select id = "characterDropdown"></select>
+	<div id = "characterDetails" class = "details"></div>
 	<button onclick = "backToHome()">Back To Homepage</button>
 	<button onclick = "viewSelectedCharacter()">View Selected Character</button>
 	<script>
+		let characters = [];
+
 		function backToHome(){
 			window.location.href = "homepageSenior.html";
 		}
@@ -20,22 +24,53 @@
 		}
 
 		function loadCharacterList(){
-			return;
+			const dropdown = document.getElementById("characterDropdown");
+			dropdown.innerHTML = "";
+			const stored = localStorage.getItem('characters');
+			if(!stored ){
+				alert("No characters to view at this time");
+				dropdown.innerHTML = `<option disabled selected>No characters saved at this time</option>`;
+				return;
+			}
+			characters = JSON.parse(stored);
+			if(characters.length == 0){
+				alert("No characters to view at this time");
+				dropdown.innerHTML = `<option disabled selected>No characters saved at this time</option>`;
+				return;
+			}
+			characters.sort((a, b) => a.name.localeCompare(b.name));
+			dropdown.innerHTML = `<option disabled selected>Pick a Character</option>`;
+			characters.forEach((char, index) => {
+				const opt = document.createElement("option");
+				opt.value = index;
+				opt.textContent = char.name;
+				dropdown.appendChild(opt);
+			});
+			
 		}
 
 		function viewSelectedCharacter(){
-			if(!checkLocalStorage()){
-				alert('Why did you not listen to the first pop up idiot?');
-			}else{
-				alert('not the expect outcome at this moment');
+			const dropdown = document.getElementById("characterDropdown");
+			const selectedIndex = dropdown.value;
+			const detail = document.getElementById("characterDetails");
+			if(selectedIndex == "" || selectedIndex == "Pick a Character"){
+				alert("Please Select a Valid Character");
+				return;
 			}
+			const selectedCharacter = characters[selectedIndex];
+			detail.innerHTML = `
+				<h2>${selectedCharacter.name}</h2>
+				<p><strong>Total Level:</strong> ${selectedCharacter.totalLevel}</p>
+				<h3>Class</h3>
+				<ul>
+					${selectedCharacter.classes
+					.map(c => `<li>${c.className} - Level ${c.classLevel}</li>`)
+					.join("")}
+				</ul>
+			`;
 		}
 
-		if(checkLocalStorage()){
-			loadCharacterList();
-		}else{
-			alert('There are not any characters to view yet');
-		}
+		loadCharacterList();
 		
 	</script>
 </body>
