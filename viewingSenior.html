@@ -9,9 +9,14 @@
 
 <body>
 	<select id = "characterDropdown"></select>
-	<div id = "characterDetails" class = "details"></div>
 	<button onclick = "backToHome()">Back To Homepage</button>
 	<button onclick = "viewSelectedCharacter()">View Selected Character</button>
+	<button onclick = "viewCharacterFile()">View Inserted Character</button>
+	<div class = "input-group">
+		<label for="characterToView">Insert Export JSON:</label>
+        <input class="characterToView" type="file" id="characterFile" accept = ".json">
+	</div>
+	<div id = "characterDetails" class = "details"></div>
 	<script>
 		let characters = [];
 
@@ -45,6 +50,46 @@
 			
 		}
 
+		function viewCharacterFile(){
+			const fileInput = document.getElementById("characterFile");
+    		const file = fileInput.files[0];
+			let characterReader = new FileReader();
+			if(!file){
+				alert('Please insert a valid character file.');
+				return;
+			}
+			characterReader.onload = function(e) {
+        		try {
+            		const character = JSON.parse(e.target.result);
+
+            		let html = `
+                		<h2>${character.name}</h2>
+                		<p><strong>Total Level:</strong> ${character.totalLevel}</p>
+                		<h3>Classes:</h3>
+                		<ul>
+            		`;
+
+            		character.classes.forEach(c => {
+                		html += `
+                    		<li>
+                       			${c.className}:
+                        		${c.subClassName} - Level ${c.classLevel}
+                    		</li>
+                		`;
+            		});
+
+            		html += `</ul>`;
+
+            		document.getElementById("characterDetails").innerHTML = html;
+
+        			} catch (err) {
+            			document.getElementById("characterDetails").textContent = "Could not read JSON character file.";
+        			}
+    			};
+
+    		characterReader.readAsText(file);
+		}
+
 		function viewSelectedCharacter(){
 			const dropdown = document.getElementById("characterDropdown");
 			const selectedIndex = dropdown.value;
@@ -57,10 +102,10 @@
 			detail.innerHTML = `
 				<h2>${selectedCharacter.name}</h2>
 				<p><strong>Total Level:</strong> ${selectedCharacter.totalLevel}</p>
-				<h3>Class</h3>
+				<h3>Classes:</h3>
 				<ul>
 					${selectedCharacter.classes
-					.map(c => `<li>${c.className} - Level ${c.classLevel}</li>`)
+					.map(c => `<li>${c.className}: ${c.subClassName} - Level ${c.classLevel}</li>`)
 					.join("")}
 				</ul>
 			`;

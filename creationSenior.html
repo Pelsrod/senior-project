@@ -11,7 +11,8 @@
 	<div class = "container">
 		<button onclick = "viewCharacter()">View Creation</button>
 		<button onclick = "backToHome()">Back To Homepage</button>
-		<button onclick = "createFile()">Create Character</button>
+		<button onclick = "createCharacter()">Create Character</button>
+		<button onclick = "createCharacterFile()">Create Character File</button>
 		<button onclick = "clearStorage()">Remove All Characters</button>
 	</div>
 	<div id = "creationContainer">
@@ -38,6 +39,10 @@
 				<div class = "input-group">
 					<label for="classCharacter">Class:</label>
         				<textarea id="classCharacter" placeholder="Enter your class name here"></textarea>
+				</div>
+				<div class = "input-group">
+					<label for="subClassCharacter">Sub Class:</label>
+        				<textarea id="subClassCharacter" placeholder="Enter your subclass name here"></textarea>
 				</div>
 				<div class = "input-group">
 					<label for="characterLevel">Character Level:</label>
@@ -78,6 +83,10 @@
         				<textarea id="newClassCharacter" placeholder="Enter your class name here"></textarea>
 				</div>
 				<div class = "input-group">
+					<label for="newSubClassCharacter">Sub Class:</label>
+        				<textarea id="newSubClassCharacter" placeholder="Enter your subclass name here"></textarea>
+				</div>
+				<div class = "input-group">
 					<label for="newLevel">Class Level:</label>
         				<select id="newLevel">
                         			${Array.from({length: 20}, (_, i) => 
@@ -111,12 +120,14 @@
 			};
 			const primaryClass = {
 				className: document.getElementById('classCharacter').value.trim(),
+				subClassName: document.getElementById('subClassCharacter').value.trim(),
 				classLevel: parseInt(document.getElementById('level').value)
 			};
 			character.classes.push(primaryClass);
 			if(classCount == 2){
 				const secondClass = {
 					className: document.getElementById('newClassCharacter').value.trim(),
+					subClassName: document.getElementById('newSubClassCharacter').value.trim(),
 					classLevel: parseInt(document.getElementById('newLevel').value)
 				};
 				character.classes.push(secondClass);
@@ -125,8 +136,53 @@
 			characters.push(character);
 			localStorage.setItem("characters", JSON.stringify(characters));
 		}
+		
+		function saveCharacterAsFile(){
+			const character = {
+				name: document.getElementById('name').value.trim(),
+				totalLevel: parseInt(document.getElementById('characterLevel').value),
+				classes: []
+			};
+			const primaryClass = {
+				className: document.getElementById('classCharacter').value.trim(),
+				subClassName: document.getElementById('subClassCharacter').value.trim(),
+				classLevel: parseInt(document.getElementById('level').value)
+			};
+			character.classes.push(primaryClass);
+			if(classCount == 2){
+				const secondClass = {
+					className: document.getElementById('newClassCharacter').value.trim(),
+					subClassName: document.getElementById('newSubClassCharacter').value.trim(),
+					classLevel: parseInt(document.getElementById('newLevel').value)
+				};
+				character.classes.push(secondClass);
+			}
+			const jsonString = JSON.stringify(character, null, 4);
+			const blob = new Blob([jsonString], { type: "application/json" });
+			const url = URL.createObjectURL(blob);
 
-		function createFile(){
+			const link = document.createElement("a");
+			link.href = url;
+
+			// Name file based on character name
+			const filename = character.name
+					? `${character.name.replace(/\s+/g, "_")}.json`
+					: "character.json";
+
+			link.download = filename;
+			link.click();
+
+			URL.revokeObjectURL(url);
+		}
+
+		function createCharacterFile(){
+			if(checkValid()){
+				saveCharacterAsFile();
+				alert('Character successfully created and ready to view');
+			}
+		}
+
+		function createCharacter(){
 			if(checkValid()){
 				saveCharacter();
 				alert('Character successfully created and ready to view');
