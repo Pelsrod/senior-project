@@ -213,22 +213,22 @@
 			}
 			const action = {
 				actionName: document.getElementById('actionName').value.trim(),
-				actionDesc: document.getElementById('actionDescription').value.trim(),
+				actionDesc: document.getElementById('actionDescription').value.trim()
 			};
 			character.actions.push(action);
 			const bonusAction = {
-				actionName: document.getElementById('bonusActionName').value.trim(),
-				actionDesc: document.getElementById('bonusActionDescription').value.trim(),
+				bonusActionName: document.getElementById('bonusActionName').value.trim(),
+				bonusActionDesc: document.getElementById('bonusActionDescription').value.trim()
 			};
 			character.bActions.push(bonusAction);
 			const reaction = {
-				actionName: document.getElementById('reactionName').value.trim(),
-				actionDesc: document.getElementById('reactionDescription').value.trim(),
+				reactionName: document.getElementById('reactionName').value.trim(),
+				reactionDesc: document.getElementById('reactionDescription').value.trim()
 			};
 			character.reactions.push(reaction);
 			const resource = {
 				resourceName: document.getElementById('resourceName').value.trim(),
-				resourceAmount : document.getElementById('resourceAmount').value
+				resourceAmount : parseInt(document.getElementById('resourceAmount').value)
 			};
 			character.resources.push(resource);
 			let characters = JSON.parse(localStorage.getItem("characters")) || [];
