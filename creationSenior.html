@@ -63,7 +63,82 @@
 				<button onclick = "addClass()">Add Another class</button>
 				<button onclick = "removeClass()">Remove Previous class</button>
 			`;
+			addActionBlock();
+			addBonusActionBlock();
+			addReactionBlock();
+			addResourceBlock();
+		}
 
+		function addActionBlock(){
+			const container = document.getElementById('creationContainer');
+			const newBlock = document.createElement('div');
+			newBlock.classList.add('actionBlock');
+			newBlock.innerHTML = `
+				<div class = "input-group">
+					<label for = "actionName">Action Name: </label>
+						<textarea id="actionName" placeholder="Enter the name of your action"></textarea>
+				</div>
+				<div class = "input-group">
+					<label for = "actionDescription">Action Description: </label>
+						<textarea id="actionName" placeholder="Give a brief description of the range, damage type, damage roll, and additional resources used by your action"></textarea>
+				</div>
+			`;
+			container.appendChild(newBlock);
+		}
+
+		function addBonusActionBlock(){
+			const container = document.getElementById('creationContainer');
+			const newBlock = document.createElement('div');
+			newBlock.classList.add('bonusActionBlock');
+			newBlock.innerHTML = `
+				<div class = "input-group">
+					<label for = "bonusActionName">Bonus Action Name: </label>
+						<textarea id="bonusActionName" placeholder="Enter the name of your bonus action"></textarea>
+				</div>
+				<div class = "input-group">
+					<label for = "bonusActionDescription">Bonus Action Description: </label>
+						<textarea id="bonusActionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and additional resources used by your bonus action"></textarea>
+				</div>
+			`;
+			container.appendChild(newBlock);
+		}
+
+		function addReactionBlock(){
+			const container = document.getElementById('creationContainer');
+			const newBlock = document.createElement('div');
+			newBlock.classList.add('reactionBlock');
+			newBlock.innerHTML = `
+				<div class = "input-group">
+					<label for = "reactionName">Reaction Name: </label>
+						<textarea id="reactionName" placeholder="Enter the name of your reaction"></textarea>
+				</div>
+				<div class = "input-group">
+					<label for = "reactionDescription">Reaction Description: </label>
+						<textarea id="reactionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and additional resources used by your reaction"></textarea>
+				</div>
+			`;
+			container.appendChild(newBlock);
+		}
+
+		function addResourceBlock(){
+			const container = document.getElementById('creationContainer');
+			const newBlock = document.createElement('div');
+			newBlock.classList.add('resourceBlock');
+			newBlock.innerHTML = `
+				<div class = "input-group">
+					<label for = "resourceName">Resource Name: </label>
+						<textarea id="resourceName" placeholder="Enter the name of your resource"></textarea>
+				</div>
+				<div class = "input-group">
+					<label for="resourceAmount">Resource Amount:</label>
+        				<select id="resourceAmount">
+                        			${Array.from({length: 20}, (_, i) => 
+                  	    				`<option value="${i + 1}">${i + 1}</option>`
+                        				).join('')}
+                    			</select>
+				</div>
+			`;
+			container.appendChild(newBlock);
 		}
 
 		function addClass(){
@@ -116,7 +191,11 @@
 			const character = {
 				name: document.getElementById('name').value.trim(),
 				totalLevel: parseInt(document.getElementById('characterLevel').value),
-				classes: []
+				classes: [],
+				actions: [],
+				bActions: [],
+				reactions: [],
+				otherResources: []
 			};
 			const primaryClass = {
 				className: document.getElementById('classCharacter').value.trim(),
@@ -132,6 +211,26 @@
 				};
 				character.classes.push(secondClass);
 			}
+			const action = {
+				actionName: document.getElementById('actionName').value.trim(),
+				actionDesc: document.getElementById('actionDescription').value.trim(),
+			};
+			character.actions.push(action);
+			const bonusAction = {
+				actionName: document.getElementById('bonusActionName').value.trim(),
+				actionDesc: document.getElementById('bonusActionDescription').value.trim(),
+			};
+			character.bActions.push(bonusAction);
+			const reaction = {
+				actionName: document.getElementById('reactionName').value.trim(),
+				actionDesc: document.getElementById('reactionDescription').value.trim(),
+			};
+			character.reactions.push(reaction);
+			const resource = {
+				resourceName: document.getElementById('resourceName').value.trim(),
+				resourceAmount : document.getElementById('resourceAmount').value
+			};
+			character.resources.push(resource);
 			let characters = JSON.parse(localStorage.getItem("characters")) || [];
 			characters.push(character);
 			localStorage.setItem("characters", JSON.stringify(characters));
@@ -141,7 +240,11 @@
 			const character = {
 				name: document.getElementById('name').value.trim(),
 				totalLevel: parseInt(document.getElementById('characterLevel').value),
-				classes: []
+				classes: [],
+				actions: [],
+				bActions: [],
+				reactions: [],
+				otherResources: []
 			};
 			const primaryClass = {
 				className: document.getElementById('classCharacter').value.trim(),
@@ -157,6 +260,7 @@
 				};
 				character.classes.push(secondClass);
 			}
+
 			const jsonString = JSON.stringify(character, null, 4);
 			const blob = new Blob([jsonString], { type: "application/json" });
 			const url = URL.createObjectURL(blob);
