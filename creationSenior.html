@@ -230,7 +230,7 @@
 				resourceName: document.getElementById('resourceName').value.trim(),
 				resourceAmount : parseInt(document.getElementById('resourceAmount').value)
 			};
-			character.resources.push(resource);
+			character.otherResources.push(resource);
 			let characters = JSON.parse(localStorage.getItem("characters")) || [];
 			characters.push(character);
 			localStorage.setItem("characters", JSON.stringify(characters));
