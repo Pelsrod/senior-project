@@ -19,6 +19,11 @@
 	</div>
 	<script>
 		let classCount = 1;
+		let resourceCount = 0;
+		let featureCount = 0;
+		let actionsList = [];
+		let bonusActionsList = [];
+		let reactionsList = [];
 
 		function viewCharacter(){
 			window.location.href = "viewingSenior.html";
@@ -62,11 +67,14 @@
 				</div>
 				<button onclick = "addClass()">Add Another class</button>
 				<button onclick = "removeClass()">Remove Previous class</button>
+				<button onclick = "addResourceBlock()">Add Addition Resource</button>
+				<button onclick = "removeResourceBlock()">Remove Addition Resource</button>
+				<button onclick = "addClassFeatureBlock()">Add Class Feature</button>
+				<button onclick = "removeClassFeatureBlock()">Remove Class Feature</button>
 			`;
 			addActionBlock();
 			addBonusActionBlock();
 			addReactionBlock();
-			addResourceBlock();
 		}
 
 		function addActionBlock(){
@@ -80,10 +88,38 @@
 				</div>
 				<div class = "input-group">
 					<label for = "actionDescription">Action Description: </label>
-						<textarea id="actionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and additional resources used by your action"></textarea>
+						<textarea id="actionDescription" placeholder="Give a brief description of the range, damage type, and damage roll and/or what your action does"></textarea>
 				</div>
+				<div class = "input-group">
+					<label for = "actionResources">Action Resources: </label>
+						<textarea id="actionResources" placeholder="List what resource your action uses, i.e spell slot, action+bonus action, ki point, etc"></textarea>
+				</div>
+				<button onclick = "addAction()">Add to Action List</button>
+				<button onclick = "viewActions()">View Actions</button>
 			`;
 			container.appendChild(newBlock);
+		}
+
+		function checkAction(){
+			return true;
+		}
+
+		//add execptions for null entries
+		function addAction(){
+			if(checkAction()){
+				const action = {
+					actionName: document.getElementById('actionName').value.trim(),
+					actionDescription: document.getElementById('actionDescription').value.trim(),
+					actionResource: document.getElementById('actionResources').value.trim()
+				};
+				actionsList.push(action);
+			}
+		}
+
+		function viewActions(){
+			alert("Your Actions are: " + actionsList.map(r => r.actionName).join(", "));
+			return;
+
 		}
 
 		function addBonusActionBlock(){
@@ -97,10 +133,37 @@
 				</div>
 				<div class = "input-group">
 					<label for = "bonusActionDescription">Bonus Action Description: </label>
-						<textarea id="bonusActionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and additional resources used by your bonus action"></textarea>
+						<textarea id="bonusActionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your bonus action does."></textarea>
 				</div>
+				<div class = "input-group">
+					<label for = "BonusActionResources">Bonus Action Resources: </label>
+						<textarea id="bonusActionResources" placeholder="List what resource your reaction uses, i.e spell slot and spell level, ki point, etc"></textarea>
+				</div>
+				<button onclick = "addBonusAction()">Add to Bonus Action List</button>
+				<button onclick = "viewBonusActions()">View Bonus Actions</button>
 			`;
 			container.appendChild(newBlock);
+		}
+
+		function checkBonusAction(){
+			return true;
+		}
+		//add execptions for null entries
+		function addBonusAction(){
+			if(checkBonusAction()){
+				const bonusAction = {
+					bonusActionName: document.getElementById('bonusActionName').value.trim(),
+					bonusActionDescription: document.getElementById('bonusActionDescription').value.trim(),
+					bonusActionResource: document.getElementById('bonusActionResources').value.trim()
+				};
+				bonusActionsList.push(bonusAction);
+			}
+		}
+
+		function viewBonusActions(){
+			alert("Your Bonus Actions are: " + bonusActionsList.map(r => r.bonusActionName).join(", "));
+			return;
+
 		}
 
 		function addReactionBlock(){
@@ -114,10 +177,37 @@
 				</div>
 				<div class = "input-group">
 					<label for = "reactionDescription">Reaction Description: </label>
-						<textarea id="reactionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and additional resources used by your reaction"></textarea>
+						<textarea id="reactionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your reaction does"></textarea>
 				</div>
+				<div class = "input-group">
+					<label for = "reactionResources">Reaction Resources: </label>
+						<textarea id="reactionResources" placeholder="List what resource your reaction uses, i.e spell slot, ki point, etc"></textarea>
+				</div>
+				<button onclick = "addReaction()">Add to Reaction List</button>
+				<button onclick = "viewReactions()">View Reactions</button>
 			`;
 			container.appendChild(newBlock);
+		}
+
+		function addReaction(){
+			if(checkReaction()){
+				const reaction = {
+					reactionName: document.getElementById('reactionName').value.trim(),
+					reactionDescription: document.getElementById('reactionDescription').value.trim(),
+					reactionResources: document.getElementById('reactionResources').value.trim()
+				};
+				reactionsList.push(reaction);
+			}
+		}
+
+		function checkReaction(){
+			return true;
+		}
+
+		function viewReactions(){
+			alert("Your reactions are: " + reactionsList.map(r => r.reactionName).join(", "));
+			return;
+
 		}
 
 		function addResourceBlock(){
@@ -139,6 +229,53 @@
 				</div>
 			`;
 			container.appendChild(newBlock);
+			resourceCount += 1;
+		}
+
+		function removeResourceBlock(){  
+			if(resourceCount == 0){
+				alert('No additional resources to remove at this time');
+				return;
+			}
+
+			const container = document.getElementById('creationContainer');
+			const blocks = container.getElementsByClassName('resourceBlock');
+
+			
+			container.removeChild(blocks[blocks.length - 1]);
+			resourceCount -= 1;
+		}
+
+		function addClassFeatureBlock(){
+			const container = document.getElementById('creationContainer');
+			const newBlock = document.createElement('div');
+			newBlock.classList.add('classFeatureBlock');
+			newBlock.innerHTML = `
+				<div class = "input-group">
+					<label for = "classFeatureName">Class Feature Name: </label>
+						<textarea id="classFeatureName" placeholder="Enter the name of your class feature"></textarea>
+				</div>
+				<div class = "input-group">
+					<label for = "classFeatureDescription">Class Feature Description: </label>
+						<textarea id="classFeatureDescription" placeholder="Give a brief description of your class feature."></textarea>
+				</div>
+			`;
+			container.appendChild(newBlock);
+			featureCount += 1;
+		}
+
+		function removeClassFeatureBlock(){  
+			if(featureCount == 0){
+				alert('No class features to remove at this time');
+				return;
+			}
+
+			const container = document.getElementById('creationContainer');
+			const blocks = container.getElementsByClassName('classFeatureBlock');
+
+			
+			container.removeChild(blocks[blocks.length - 1]);
+			featureCount -= 1;
 		}
 
 		function addClass(){
@@ -192,9 +329,9 @@
 				name: document.getElementById('name').value.trim(),
 				totalLevel: parseInt(document.getElementById('characterLevel').value),
 				classes: [],
-				actions: [],
-				bActions: [],
-				reactions: [],
+				actions: actionsList,
+				bonusActions: bonusActionsList,
+				reactions: reactionsList,
 				otherResources: []
 			};
 			const primaryClass = {
@@ -211,21 +348,6 @@
 				};
 				character.classes.push(secondClass);
 			}
-			const action = {
-				actionName: document.getElementById('actionName').value.trim(),
-				actionDesc: document.getElementById('actionDescription').value.trim()
-			};
-			character.actions.push(action);
-			const bonusAction = {
-				bonusActionName: document.getElementById('bonusActionName').value.trim(),
-				bonusActionDesc: document.getElementById('bonusActionDescription').value.trim()
-			};
-			character.bActions.push(bonusAction);
-			const reaction = {
-				reactionName: document.getElementById('reactionName').value.trim(),
-				reactionDesc: document.getElementById('reactionDescription').value.trim()
-			};
-			character.reactions.push(reaction);
 			const resource = {
 				resourceName: document.getElementById('resourceName').value.trim(),
 				resourceAmount : parseInt(document.getElementById('resourceAmount').value)
@@ -241,9 +363,9 @@
 				name: document.getElementById('name').value.trim(),
 				totalLevel: parseInt(document.getElementById('characterLevel').value),
 				classes: [],
-				actions: [],
-				bActions: [],
-				reactions: [],
+				actions: actionsList,
+				bonusActions: bonusActionsList,
+				reactions: reactionsList,
 				otherResources: []
 			};
 			const primaryClass = {
@@ -260,6 +382,12 @@
 				};
 				character.classes.push(secondClass);
 			}
+			
+			const resource = {
+				resourceName: document.getElementById('resourceName').value.trim(),
+				resourceAmount : parseInt(document.getElementById('resourceAmount').value)
+			};
+			character.otherResources.push(resource);
 
 			const jsonString = JSON.stringify(character, null, 4);
 			const blob = new Blob([jsonString], { type: "application/json" });

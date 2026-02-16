@@ -68,8 +68,7 @@
                 		<h3>Classes:</h3>
                 		<ul>
             		`;
-
-            		character.classes.forEach(c => {
+					character.classes.forEach(c => {
                 		html += `
                     		<li>
                        			${c.className}:
@@ -79,7 +78,57 @@
             		});
 
             		html += `</ul>`;
-
+					html += `
+						<h3>Action:</h3>
+                		<ul>
+					`;
+					character.actions.forEach(c => {
+                		html += `
+                    		<li>
+                       			${c.actionName}:
+                        		${c.actionDescription} -  ${c.actionResource}
+                    		</li>
+                		`;
+            		});
+					html += `</ul>`;
+					html += `
+						<h3>Bonus Action:</h3>
+                		<ul>
+					`;
+					character.bonusActions.forEach(c => {
+                		html += `
+                    		<li>
+                       			${c.bonusActionName}:
+                        		${c.bonusActionDescription} -  ${c.bonusActionResource}
+                    		</li>
+                		`;
+            		});
+					html += `</ul>`;
+					html += `
+						<h3>Reaction:</h3>
+                		<ul>
+					`;
+					character.reactions.forEach(c => {
+                		html += `
+                    		<li>
+                       			${c.reactionName}:
+                        		${c.reactionDescription} -  ${c.reactionResource}
+                    		</li>
+                		`;
+            		});
+					html += `</ul>`;
+					html += `
+						<h3>Other Resources:</h3>
+                		<ul>
+					`;
+					character.otherResources.forEach(c => {
+                		html += `
+                    		<li>
+                       			${c.resourceName}: amount - ${c.resourceAmount}
+                    		</li>
+                		`;
+            		});
+					html += `</ul>`;
             		document.getElementById("characterDetails").innerHTML = html;
 
         			} catch (err) {
@@ -106,6 +155,30 @@
 				<ul>
 					${selectedCharacter.classes
 					.map(c => `<li>${c.className}: ${c.subClassName} - Level ${c.classLevel}</li>`)
+					.join("")}
+				</ul>
+				<h3>Actions:</h3>
+				<ul>
+					${selectedCharacter.actions
+					.map(c => `<li>${c.actionName}: ${c.actionDescription} - uses ${c.actionResource}`)
+					.join("")}
+				</ul>
+				<h3>Bonus Actions:</h3>
+				<ul>
+					${selectedCharacter.bonusActions
+					.map(c => `<li>${c.bonusActionName}: ${c.bonusActionDescription} - uses ${c.bonusActionResource}`)
+					.join("")}
+				</ul>
+				<h3>Reactions:</h3>
+				<ul>
+					${selectedCharacter.reactions
+					.map(c => `<li>${c.reactionName}: ${c.reactionDescription} - uses ${c.reactionResources}`)
+					.join("")}
+				</ul>
+				<h3>Resources:</h3>
+				<ul>
+					${selectedCharacter.otherResources
+					.map(c => `<li>${c.resourceName}: amount -  ${c.resourceAmount}`)
 					.join("")}
 				</ul>
 			`;
