@@ -9,6 +9,7 @@
 
 <body>
 	<button onclick = "backToHome()">Back To Homepage</button>
+	<button onclick = "updateCharacter()">Update a Character</button><br>
 	<button onclick = "viewSelectedCharacter()">View Selected Character</button>
 	<button onclick = "viewCharacterFile()">View Inserted Character</button><br>
 	<select id = "characterDropdown"></select>
@@ -22,6 +23,10 @@
 
 		function backToHome(){
 			window.location.href = "index.html";
+		}
+
+		function updateCharacter(){
+			window.location.href = "updatingSenior.html";
 		}
 
 		function loadCharacterList(){
