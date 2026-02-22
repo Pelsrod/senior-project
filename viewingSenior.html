@@ -1,13 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+<style>
+.resource-row {
+  margin-bottom: 0.75rem;
+}
+
+.tokens {
+  display: inline-flex;
+  gap: 0.4rem;
+  margin-left: 0.5rem;
+}
+
+.token {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #444;
+  cursor: pointer;
+}
+
+.token.filled {
+  background-color: #4caf50;
+}
+
+.token.empty {
+  background-color: transparent;
+}
+.used {
+  opacity: 0.5;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+}
+</style>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viewing</title>
+    <title>Gameplay</title>
     
 </head>
 
 <body>
+	<p>Viewing and Gameplay</p>
 	<button onclick = "backToHome()">Back To Homepage</button>
 	<button onclick = "updateCharacter()">Update a Character</button><br>
 	<button onclick = "viewSelectedCharacter()">View Selected Character</button>
@@ -19,6 +56,9 @@
 	</div>
 	<div id = "characterDetails" class = "details"></div>
 	<script>
+		let action = 1;
+		let bonusAction = 1;
+		let reaction = 1;
 		let characters = [];
 
 		function backToHome(){
@@ -59,6 +99,9 @@
 			const fileInput = document.getElementById("characterFile");
     		const file = fileInput.files[0];
 			let characterReader = new FileReader();
+			action = 1;
+			bonusAction = 1;
+			reaction = 1;
 			if(!file){
 				alert('Please insert a valid character file.');
 				return;
@@ -68,6 +111,9 @@
             		const character = JSON.parse(e.target.result);
 
             		let html = `
+					<button onclick = "beginTurn()">Begin Turn</button>
+					<button onclick = "longRest()">Long Rest</button>
+					<button onclick = "shortRest()">Short Rest</button>
                 		<h2>${character.name}</h2>
                 		<p><strong>Total Level:</strong> ${character.totalLevel}</p>
                 		<h3>Classes:</h3>
@@ -84,6 +130,7 @@
 
             		html += `</ul>`;
 					html += `
+						<div id = "actionSection">
 						<h3>Action:</h3>
                 		<ul>
 					`;
@@ -91,12 +138,15 @@
                 		html += `
                     		<li>
                        			${c.actionName}:
-                        		${c.actionDescription} -  ${c.actionResource}
+                        		${c.actionDescription} - uses ${c.actionResource}
                     		</li>
                 		`;
             		});
 					html += `</ul>`;
+					html += `</div>`;
+					html += `<button id="useActionBtn" onclick="useAction()">Use Action</button><br>`
 					html += `
+						<div id = "bonusActionSection">
 						<h3>Bonus Action:</h3>
                 		<ul>
 					`;
@@ -104,12 +154,15 @@
                 		html += `
                     		<li>
                        			${c.bonusActionName}:
-                        		${c.bonusActionDescription} -  ${c.bonusActionResource}
+                        		${c.bonusActionDescription} - uses ${c.bonusActionResource}
                     		</li>
                 		`;
             		});
 					html += `</ul>`;
+					html += `</div>`;
+					html += `<button id="useBonusActionBtn" onclick="useBonusAction()">Use Bonus Action</button><br>`
 					html += `
+						<div id = "reactionSection">
 						<h3>Reaction:</h3>
                 		<ul>
 					`;
@@ -117,25 +170,33 @@
                 		html += `
                     		<li>
                        			${c.reactionName}:
-                        		${c.reactionDescription} -  ${c.reactionResource}
+                        		${c.reactionDescription} - uses ${c.reactionResources}
                     		</li>
                 		`;
             		});
 					html += `</ul>`;
-					html += `
-						<h3>Other Resources:</h3>
-                		<ul>
-					`;
-					character.otherResources.forEach(c => {
-                		html += `
-                    		<li>
-                       			${c.resourceName}: amount - ${c.resourceAmount}
-                    		</li>
-                		`;
-            		});
-					html += `</ul>`;
-            		document.getElementById("characterDetails").innerHTML = html;
+					html += `</div>`;
+					html += `<button id="useReactionBtn" onclick="useReaction()">Use Reaction</button><br>`
+					if (character.classActions?.length) {
+  						html += `
+    						<h3>Class Features:</h3>
+    						<ul>
+      							${character.classActions
+        						.map(c => `<li>${c.featureName}: ${c.featureDescription}</li>`)
+        						.join("")}
+    						</ul>
+  							`;
+					}
+					document.getElementById("characterDetails").innerHTML = html;
 
+					if (character.otherResources && character.otherResources.length !== 0) {
+    					document.getElementById("characterDetails").innerHTML += `
+        					<h3>Other Resources:</h3>
+        					<div id="fileOtherResources"></div>
+    					`;
+    					renderOtherResources(character.otherResources, "fileOtherResources");
+						updateActionUI();
+					}
         			} catch (err) {
             			document.getElementById("characterDetails").textContent = "Could not read JSON character file.";
         			}
@@ -148,12 +209,18 @@
 			const dropdown = document.getElementById("characterDropdown");
 			const selectedIndex = dropdown.value;
 			const detail = document.getElementById("characterDetails");
+			action = 1;
+			bonusAction = 1;
+			reaction = 1;
 			if(selectedIndex == "" || selectedIndex == "Pick a Character"){
 				alert("Please Select a Valid Character");
 				return;
 			}
 			const selectedCharacter = characters[selectedIndex];
 			detail.innerHTML = `
+				<button onclick = "beginTurn()">Begin Turn</button>
+				<button onclick = "longRest()">Long Rest</button>
+				<button onclick = "shortRest()">Short Rest</button>
 				<h2>${selectedCharacter.name}</h2>
 				<p><strong>Total Level:</strong> ${selectedCharacter.totalLevel}</p>
 				<h3>Classes:</h3>
@@ -162,31 +229,132 @@
 					.map(c => `<li>${c.className}: ${c.subClassName} - Level ${c.classLevel}</li>`)
 					.join("")}
 				</ul>
-				<h3>Actions:</h3>
+				<div id = "actionSection">
+					<h3>Actions:</h3>
+					<ul>
+						${selectedCharacter.actions
+						.map(c => `<li>${c.actionName}: ${c.actionDescription} - uses ${c.actionResource}</li>`)
+						.join("")}
+					</ul>
+				</div>
+				<button id="useActionBtn" onclick="useAction()">Use Action</button><br>
+				<div id = "bonusActionSection">
+					<h3>Bonus Actions:</h3>
+					<ul>
+						${selectedCharacter.bonusActions
+						.map(c => `<li>${c.bonusActionName}: ${c.bonusActionDescription} - uses ${c.bonusActionResource}</li>`)
+						.join("")}
+					</ul>
+				</div>
+				<button id="useBonusActionBtn" onclick="useBonusAction()">Use Bonus Action</button><br>
+				<div id = "reactionSection">
+					<h3>Reactions:</h3>
+					<ul>
+						${selectedCharacter.reactions
+						.map(c => `<li>${c.reactionName}: ${c.reactionDescription} - uses ${c.reactionResources}</li>`)
+						.join("")}
+					</ul>
+				</div>
+				<button id="useReactionBtn" onclick="useReaction()">Use Reaction</button><br>
+				<h3>Class Features:</h3>
 				<ul>
-					${selectedCharacter.actions
-					.map(c => `<li>${c.actionName}: ${c.actionDescription} - uses ${c.actionResource}`)
-					.join("")}
-				</ul>
-				<h3>Bonus Actions:</h3>
-				<ul>
-					${selectedCharacter.bonusActions
-					.map(c => `<li>${c.bonusActionName}: ${c.bonusActionDescription} - uses ${c.bonusActionResource}`)
-					.join("")}
-				</ul>
-				<h3>Reactions:</h3>
-				<ul>
-					${selectedCharacter.reactions
-					.map(c => `<li>${c.reactionName}: ${c.reactionDescription} - uses ${c.reactionResources}`)
+					${selectedCharacter.classActions
+					.map(c => `<li>${c.featureName}: ${c.featureDescription}</li>`)
 					.join("")}
 				</ul>
 				<h3>Resources:</h3>
-				<ul>
-					${selectedCharacter.otherResources
-					.map(c => `<li>${c.resourceName}: amount -  ${c.resourceAmount}`)
-					.join("")}
-				</ul>
+				<div id="otherResources"></div>
 			`;
+			renderOtherResources(selectedCharacter.otherResources, "otherResources");
+			updateActionUI();
+			
+		}
+
+		function beginTurn(){
+			action = bonusAction = reaction = 1;
+			alert("Your turn has begun and your action economy has reset")
+			updateActionUI();
+		}
+
+		function useAction(){
+			if(action == 0){
+				alert("You have already used your action this turn");
+			}
+			action = 0;
+			updateActionUI();
+		}
+
+		function shortRest(){
+			alert("You have short rested. If you have any resources or features that restore on a short rest, do so now. You recover up to half of your hit dice in hp.");
+			return;
+		}
+
+		function longRest(){
+			alert("You have long rested. Restore all resources and hit points.");
+			return;
+		}
+
+		function useBonusAction(){
+			if(bonusAction == 0){
+				alert("You have already used your bonus action this turn");
+			}
+			bonusAction = 0;
+			updateActionUI();
+		}
+
+		function useReaction(){
+			if(reaction == 0){
+				alert("You have already used your reaction this round");
+			}
+			reaction = 0;
+			updateActionUI();
+		}
+
+		function updateActionUI(){
+			const a = document.getElementById("actionSection");
+  			const b = document.getElementById("bonusActionSection");
+  			const r = document.getElementById("reactionSection");
+
+  			a?.classList.toggle("used", action == 0);
+  			b?.classList.toggle("used", bonusAction == 0);
+  			r?.classList.toggle("used", reaction == 0);
+
+ 			document.getElementById("useActionBtn")?.classList.toggle("disabled", action == 0);
+  			document.getElementById("useBonusActionBtn")?.classList.toggle("disabled", bonusAction == 0);
+  			document.getElementById("useReactionBtn")?.classList.toggle("disabled", reaction == 0);
+		}
+
+		function renderOtherResources(resources, containerId) {
+  			const container = document.getElementById(containerId);
+  			container.innerHTML = "";
+
+  			resources.forEach(resource => {
+    			if (resource.current === undefined) {
+      				resource.current = resource.resourceAmount;
+    			}
+
+    			const row = document.createElement("div");
+    			row.className = "resource-row";
+    			row.innerHTML = `<strong>${resource.resourceName}:</strong>`;
+
+    			const tokens = document.createElement("div");
+    			tokens.className = "tokens";
+
+    			for (let i = 1; i <= resource.resourceAmount; i++) {
+      				const token = document.createElement("div");
+      				token.className = "token " + (i <= resource.current ? "filled" : "empty");
+
+      				token.onclick = () => {
+        				resource.current = i <= resource.current ? i - 1 : i;
+        				renderOtherResources(resources, containerId);
+      				};
+
+      				tokens.appendChild(token);
+    			}
+
+    			row.appendChild(tokens);
+    			container.appendChild(row);
+  			});
 		}
 
 		loadCharacterList();
