@@ -127,8 +127,39 @@
                     		</li>
                 		`;
             		});
-
             		html += `</ul>`;
+					html += `
+						<div id = "conditions">
+						<label for "condition">Current Condition:</label>
+							<select id="condition">
+								<option value="1">None</option>
+                        		<option value="2">Blinded</option>
+								<option value="3">Charmed</option>
+								<option value="4">Deafened</option>
+								<option value="5">Frightened</option>
+								<option value="6">Grabbled</option>
+								<option value="7">Incapacitated</option>
+								<option value="8">Invisible</option>
+								<option value="9">Paralyzed</option>
+								<option value="10">Petrified</option>
+								<option value="11">Poisoned</option>
+								<option value="12">Prone</option>
+								<option value="13">Restrained</option>
+								<option value="14">Stunned</option>
+								<option value="15">Unconscious</option>
+                			</select>
+							<button onclick = "explainCondition()">Explain Condition</button>
+					</div>
+					<div id = "exhaustion">
+						<label for="exhaustion">Level of Exhaustion:</label>
+        					<select id="characterLevel">
+                        		${Array.from({length: 6}, (_, i) => 
+                            		`<option value="${i + 1}">${i + 1}</option>`
+                        			).join('')}
+                    		</select>
+							<button onclick = "explainExhaustion()">Explain Exhaustion</button>
+					</div>
+					`;
 					html += `
 						<div id = "actionSection">
 						<h3>Action:</h3>
@@ -216,11 +247,13 @@
 				alert("Please Select a Valid Character");
 				return;
 			}
+			//fuck me, this needs redone to account for multiple conditions
+			//And also should match with exhaustion for explainations
 			const selectedCharacter = characters[selectedIndex];
 			detail.innerHTML = `
 				<button onclick = "beginTurn()">Begin Turn</button>
 				<button onclick = "longRest()">Long Rest</button>
-				<button onclick = "shortRest()">Short Rest</button>
+				<button onclick = "shortRest()">Short Rest</button><br>
 				<h2>${selectedCharacter.name}</h2>
 				<p><strong>Total Level:</strong> ${selectedCharacter.totalLevel}</p>
 				<h3>Classes:</h3>
@@ -229,6 +262,36 @@
 					.map(c => `<li>${c.className}: ${c.subClassName} - Level ${c.classLevel}</li>`)
 					.join("")}
 				</ul>
+				<div id = "conditions">
+					<label for "condition">Current Condition:</label>
+						<select id="condition">
+							<option value="1">None</option>
+                        	<option value="2">Blinded</option>
+							<option value="3">Charmed</option>
+							<option value="4">Deafened</option>
+							<option value="5">Frightened</option>
+							<option value="6">Grabbled</option>
+							<option value="7">Incapacitated</option>
+							<option value="8">Invisible</option>
+							<option value="9">Paralyzed</option>
+							<option value="10">Petrified</option>
+							<option value="11">Poisoned</option>
+							<option value="12">Prone</option>
+							<option value="13">Restrained</option>
+							<option value="14">Stunned</option>
+							<option value="15">Unconscious</option>
+                		</select>
+						<button onclick = "explainCondition()">Explain Condition</button>
+				</div>
+				<div id = "exhaustion">
+					<label for="exhaustion">Level of Exhaustion:</label>
+        				<select id="characterLevel">
+                        	${Array.from({length: 7}, (_, i) => 
+                            	`<option value="${i}">${i}</option>`
+                        		).join('')}
+                    	</select>
+						<button onclick = "explainExhaustion()">Explain Exhaustion Levels</button>
+				</div>
 				<div id = "actionSection">
 					<h3>Actions:</h3>
 					<ul>
@@ -322,6 +385,11 @@
  			document.getElementById("useActionBtn")?.classList.toggle("disabled", action == 0);
   			document.getElementById("useBonusActionBtn")?.classList.toggle("disabled", bonusAction == 0);
   			document.getElementById("useReactionBtn")?.classList.toggle("disabled", reaction == 0);
+		}
+
+		function explainExhaustion(){
+			alert("While you are exhauted, you recieve the following effects: -2 times your exhaustion level to D20 tests and -5ft times your exhaustion level to your movement speed");
+			return;
 		}
 
 		function renderOtherResources(resources, containerId) {

@@ -443,7 +443,7 @@
 				actions: actionsList,
 				bonusActions: bonusActionsList,
 				reactions: reactionsList,
-				otherResources: [],
+				otherResources: resourceList,
 				classActions: classActionsList
 			};
 			const primaryClass = {
@@ -459,14 +459,7 @@
 					classLevel: parseInt(document.getElementById('newLevel').value)
 				};
 				character.classes.push(secondClass);
-			}
-			
-			const resource = {
-				resourceName: document.getElementById('resourceName').value.trim(),
-				resourceAmount : parseInt(document.getElementById('resourceAmount').value)
 			};
-			character.otherResources.push(resource);
-
 			const jsonString = JSON.stringify(character, null, 4);
 			const blob = new Blob([jsonString], { type: "application/json" });
 			const url = URL.createObjectURL(blob);
