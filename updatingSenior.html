@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Updating</title>
+    <title>Character Update Page</title>
     
 </head>
 
 <body>
+	<p>Update Your Character</p>
     <button onclick = "backToHome()">Back To Homepage</button>
     <button onclick = "createCharacter()">Create New Character</button>
 	<button onclick = "backToView()">Back To Gameplay</button><br>
 	<button onclick = "updateSelectedCharacter()">Update Selected Character</button>
 	<button onclick = "updateCharacterFile()">Update Inserted Character</button><br>
-	<button onclick = "createCharacterFile()">Create Character File</button><br>
+	<button onclick = "createCharacterFile()">Create Character File</button>
+	<button onclick = "deleteSelectedCharacter()">Remove selected Character</button><br>
 	<select id = "characterDropdown"></select>
 	<div class = "input-group">
 		<label for="characterToView">Insert Export JSON:</label>
@@ -225,13 +227,12 @@
 			const dropdown=document.getElementById("characterDropdown");
 			const selectedIndex=dropdown.value;
 
-			if(selectedIndex===""){
+			if(selectedIndex == "" || selectedIndex == "Pick a Character"){
 				alert("Select a character");
+				clearCharacterUI();
 				return;
 			}
-
 			currentCharacterIndex=selectedIndex;
-
 			renderCharacter(characters[selectedIndex]);
 		}
 
@@ -722,6 +723,30 @@
 			link.click();
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
+		}
+
+		function deleteSelectedCharacter() {
+			if (currentCharacterIndex === null) {
+				alert("No character selected.");
+				return;
+			}
+			const characterName = characters[currentCharacterIndex].name || "this character";
+			const confirmDelete = confirm(`Are you sure you want to delete ${characterName}?`);
+			if (!confirmDelete) return;
+			characters.splice(currentCharacterIndex, 1);
+			localStorage.setItem("characters", JSON.stringify(characters));
+			currentCharacterIndex = null;
+			loadCharacterList();
+			clearCharacterUI();
+			alert(`${characterName} deleted.`);
+		}
+
+		function clearCharacterUI(){
+			const detail = document.getElementById("characterDetails");
+			detail.innerHTML = `
+				<h2>No Character Selected</h2>
+				<p>Please select a character from the dropdown or insert a character JSON file</p>
+			`;
 		}
 
         function backToHome(){

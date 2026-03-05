@@ -14,7 +14,6 @@
 		<button onclick = "viewCharacter()">View Creation</button><br>
 		<button onclick = "createCharacter()">Create Character</button>
 		<button onclick = "createCharacterFile()">Create Character File</button><br>
-		<button onclick = "clearStorage()">Remove All Characters</button>
 	</div>
 	<div id = "creationContainer">
 	</div>
@@ -530,11 +529,6 @@
 				return false;
 			}
 			return true;	
-		}
-		
-		//for testing purposes so I don't clog my local storage, will later become a remove character function
-		function clearStorage(){
-			localStorage.clear();
 		}
 
 		loadCreation();

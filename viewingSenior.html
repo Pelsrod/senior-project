@@ -130,39 +130,38 @@
             		html += `</ul>`;
 					html += `
 						<div id = "conditions">
-						<label for "condition">Current Condition:</label>
-							<select id="condition">
-								<option value="1">None</option>
-                        		<option value="2">Blinded</option>
-								<option value="3">Charmed</option>
-								<option value="4">Deafened</option>
-								<option value="5">Frightened</option>
-								<option value="6">Grabbled</option>
-								<option value="7">Incapacitated</option>
-								<option value="8">Invisible</option>
-								<option value="9">Paralyzed</option>
-								<option value="10">Petrified</option>
-								<option value="11">Poisoned</option>
-								<option value="12">Prone</option>
-								<option value="13">Restrained</option>
-								<option value="14">Stunned</option>
-								<option value="15">Unconscious</option>
-                			</select>
+							<details>
+								<summary>Conditions:</summary>
+									<label><input type="checkbox">Blinded</label><button onclick = "blind()">Explain Effect</button><br>
+									<label><input type="checkbox">Charmed</label><button onclick = "charm()">Explain Effect</button><br>
+									<label><input type="checkbox">Deafened</label><button onclick = "deaf()">Explain Effect</button><br>
+									<label><input type="checkbox">Frightened</label><button onclick = "frightened()">Explain Effect</button><br>
+									<label><input type="checkbox">Grappled</label><button onclick = "grappled()">Explain Effect</button><br>
+									<label><input type="checkbox">Incapacitated</label><button onclick = "incapacitated()">Explain Effect</button><br>
+									<label><input type="checkbox">Invisible</label><button onclick = "invisible()">Explain Effect</button><br>
+									<label><input type="checkbox">Paralyzed</label><button onclick = "paralyzed()">Explain Effect</button><br>
+									<label><input type="checkbox">Petrified</label><button onclick = "petrified()">Explain Effect</button><br>
+									<label><input type="checkbox">Poisoned</label><button onclick = "poison()">Explain Effect</button><br>
+									<label><input type="checkbox">Prone</label><button onclick = "prone()">Explain Effect</button><br>
+									<label><input type="checkbox">Restrained</label><button onclick = "restrained()">Explain Effect</button><br>
+									<label><input type="checkbox">Stunned</label><button onclick = "stunned()">Explain Effect</button><br>
+									<label><input type="checkbox">Unconscious</label><button onclick = "unconscious()">Explain Effect</button><br>
+							</details>
 							<button onclick = "explainCondition()">Explain Condition</button>
 					</div>
 					<div id = "exhaustion">
 						<label for="exhaustion">Level of Exhaustion:</label>
         					<select id="characterLevel">
-                        		${Array.from({length: 6}, (_, i) => 
-                            		`<option value="${i + 1}">${i + 1}</option>`
+                        		${Array.from({length: 7}, (_, i) => 
+                            		`<option value="${i}">${i}</option>`
                         			).join('')}
                     		</select>
-							<button onclick = "explainExhaustion()">Explain Exhaustion</button>
+							<button onclick = "explainExhaustion()">Explain Exhaustion Levels</button>
 					</div>
 					`;
 					html += `
 						<div id = "actionSection">
-						<h3>Action:</h3>
+						<h3>Actions:</h3>
                 		<ul>
 					`;
 					character.actions.forEach(c => {
@@ -178,7 +177,7 @@
 					html += `<button id="useActionBtn" onclick="useAction()">Use Action</button><br>`
 					html += `
 						<div id = "bonusActionSection">
-						<h3>Bonus Action:</h3>
+						<h3>Bonus Actions:</h3>
                 		<ul>
 					`;
 					character.bonusActions.forEach(c => {
@@ -194,7 +193,7 @@
 					html += `<button id="useBonusActionBtn" onclick="useBonusAction()">Use Bonus Action</button><br>`
 					html += `
 						<div id = "reactionSection">
-						<h3>Reaction:</h3>
+						<h3>Reactions:</h3>
                 		<ul>
 					`;
 					character.reactions.forEach(c => {
@@ -234,6 +233,7 @@
     			};
 
     		characterReader.readAsText(file);
+			checkButtonFunctions();
 		}
 
 		function viewSelectedCharacter(){
@@ -247,8 +247,6 @@
 				alert("Please Select a Valid Character");
 				return;
 			}
-			//fuck me, this needs redone to account for multiple conditions
-			//And also should match with exhaustion for explainations
 			const selectedCharacter = characters[selectedIndex];
 			detail.innerHTML = `
 				<button onclick = "beginTurn()">Begin Turn</button>
@@ -263,25 +261,23 @@
 					.join("")}
 				</ul>
 				<div id = "conditions">
-					<label for "condition">Current Condition:</label>
-						<select id="condition">
-							<option value="1">None</option>
-                        	<option value="2">Blinded</option>
-							<option value="3">Charmed</option>
-							<option value="4">Deafened</option>
-							<option value="5">Frightened</option>
-							<option value="6">Grabbled</option>
-							<option value="7">Incapacitated</option>
-							<option value="8">Invisible</option>
-							<option value="9">Paralyzed</option>
-							<option value="10">Petrified</option>
-							<option value="11">Poisoned</option>
-							<option value="12">Prone</option>
-							<option value="13">Restrained</option>
-							<option value="14">Stunned</option>
-							<option value="15">Unconscious</option>
-                		</select>
-						<button onclick = "explainCondition()">Explain Condition</button>
+					<details>
+						<summary>Conditions:</summary>
+							<label><input type="checkbox">Blinded</label><button onclick = "blind()">Explain Effect</button><br>
+							<label><input type="checkbox">Charmed</label><button onclick = "charm()">Explain Effect</button><br>
+							<label><input type="checkbox">Deafened</label><button onclick = "deaf()">Explain Effect</button><br>
+							<label><input type="checkbox">Frightened</label><button onclick = "frightened()">Explain Effect</button><br>
+							<label><input type="checkbox">Grappled</label><button onclick = "grappled()">Explain Effect</button><br>
+							<label><input type="checkbox">Incapacitated</label><button onclick = "incapacitated()">Explain Effect</button><br>
+							<label><input type="checkbox">Invisible</label><button onclick = "invisible()">Explain Effect</button><br>
+							<label><input type="checkbox">Paralyzed</label><button onclick = "paralyzed()">Explain Effect</button><br>
+							<label><input type="checkbox">Petrified</label><button onclick = "petrified()">Explain Effect</button><br>
+							<label><input type="checkbox">Poisoned</label><button onclick = "poison()">Explain Effect</button><br>
+							<label><input type="checkbox">Prone</label><button onclick = "prone()">Explain Effect</button><br>
+							<label><input type="checkbox">Restrained</label><button onclick = "restrained()">Explain Effect</button><br>
+							<label><input type="checkbox">Stunned</label><button onclick = "stunned()">Explain Effect</button><br>
+							<label><input type="checkbox">Unconscious</label><button onclick = "unconscious()">Explain Effect</button><br>
+					</details>
 				</div>
 				<div id = "exhaustion">
 					<label for="exhaustion">Level of Exhaustion:</label>
@@ -330,6 +326,7 @@
 			`;
 			renderOtherResources(selectedCharacter.otherResources, "otherResources");
 			updateActionUI();
+			checkButtonFunctions();
 			
 		}
 
@@ -388,7 +385,7 @@
 		}
 
 		function explainExhaustion(){
-			alert("While you are exhauted, you recieve the following effects: -2 times your exhaustion level to D20 tests and -5ft times your exhaustion level to your movement speed");
+			alert("While you are exhauted, you recieve the following effects: -2 times your exhaustion level to D20 tests and -5ft times your exhaustion level to your movement speed. At 6 levels of exhaustion, you die.");
 			return;
 		}
 
@@ -425,7 +422,86 @@
   			});
 		}
 
+		function checkButtonFunctions(){
+			document.querySelectorAll("button[onclick]").forEach(btn => {
+				const fn = btn.getAttribute("onclick").replace("()", "");
+				if(typeof window[fn] !== "function"){
+					console.warn(`Missing function: ${fn}`);
+				}
+			});
+		}
+		function blind(){
+			alert("While blinded, you can't see and have disadvantage on attack rolls. You fail any ability checks that require sight and attack rolls against you have advantage.");
+			return;
+		}
+
+		function charm(){
+			alert("While charmed, you cannot harm the charmer with damaging or magical effects. The charmer has advantage on any ability check to interact with you socially.");
+			return;
+		}
+
+		function deaf(){
+			alert("While deafened, you cannot hear and fail any ability check that requires hearing.");
+			return;
+		}
+
+		function frightened(){
+			alert("While frightened, you have disadvantage on ability checks and attack rolls while the source of fear is within line of sight. You cannot move closer to your source of fear.");
+			return;
+		}
+
+		function grappled(){
+			alert("While grappled, your speed is 0 and it cannot increase. You have disadvantage on attack rolls to targets outside of whatever is grappling you. The grappler can drag or carry you when it moves, but every 1 foot of movement costs an extra 1 foot unless you are Tiny or more than 2 sizes smaller than your grappler.");
+			return;
+		}
+
+		function incapacitated(){
+			alert("While incapacitated, you cannot take actions, bonus actions, or reactions. You cannot speak and your concentration is broken. You roll disadvantage on initiative.");
+			return;
+		}
+
+		function invisible(){
+			alert("While invisible, you have advantage on initiative. Equipment you are wearing is also invisible and you aren't affected by any effect that requires you to be seen unless the effect's creator can see you. Attack rolls against you have disadvantage while yours have advantage unless the creature can see you.");
+			return;
+		}
+
+		function paralyzed(){
+			alert("While paralyzed, you have the incapacitated condition as well. Your speed is 0 and can't increase, you automatically fail strength and dexterity saving throws, attacks against you have advantage, and any attack that hits you is a critical hit if the attacker is within 5ft of you.");
+			return;
+		}
+
+		function petrified(){
+			alert("You and any nonmagical objects you have on you are transformed into a solid inanimate substance. Your weight increases by ten, you stop aging, and you gain the incapacitated condition. Your speed is 0 and can't increase, attack rolls against you have advantage, you automatically fail strength and dexterity saving throws. You do, however, have resistance to all damage and are immune to the poisoned condition");
+			return;
+		}
+
+		function poison(){
+			alert("While poisoned, you have disadvantage on attack rolls and ability checks");
+			return;
+		}
+
+		function prone(){
+			alert("While prone, you can only move by crawling or spend half your movement speed, rounded down, to stand back up. If your speed is 0, you cannot stand up. You have disadvantage on attack rolls and attacks against you have advantage within 5ft of you. Otherwise, the attack has disadvantage.");
+			return;
+		}
+
+		function restrained(){
+			alert("While restrained, your speed is 0 and cannot increase. Attack rolls made against you have advantage, your attack rolls and dexterity saving throws have disadvantage.");
+			return;
+		}
+
+		function stunned(){
+			alert("While you are stunned, you also have the incapacitated condition. You automatically fail strength and dexterity saving throws and attacks made against you have advantage.");
+			return;
+		}
+
+		function unconscious(){
+			alert("While unconcious, you also have both the incapacitated and prone condition. You drop whatever you are holding and remain prone whenever this condition ends. Your speed is 0 and cannot increase, attacks against you have advantage, you automatically fail strength and dexterity saving throws, any attack roll that hits you is a critical hit if the attacker is within 5ft of you, and you are unaware of your surroundings.");
+			return;
+		}
+
 		loadCharacterList();
+		checkButtonFunctions();
 		
 	</script>
 </body>
