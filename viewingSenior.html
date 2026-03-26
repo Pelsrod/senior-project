@@ -1,41 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<style>
-.resource-row {
-  margin-bottom: 0.75rem;
-}
-
-.tokens {
-  display: inline-flex;
-  gap: 0.4rem;
-  margin-left: 0.5rem;
-}
-
-.token {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid #444;
-  cursor: pointer;
-}
-
-.token.filled {
-  background-color: #4caf50;
-}
-
-.token.empty {
-  background-color: transparent;
-}
-.used {
-  opacity: 0.5;
-}
-
-.disabled {
-  pointer-events: none;
-  opacity: 0.4;
-}
-</style>
-
+<link rel="stylesheet" type="text/css" href="stylesSenior.css">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -167,8 +132,9 @@
 					character.actions.forEach(c => {
                 		html += `
                     		<li>
-                       			${c.actionName}:
-                        		${c.actionDescription} - uses ${c.actionResource}
+                       			 <span class="action-name">${c.actionName}</span>:
+            					${c.actionDescription} - uses 
+            					<span class="action-resource">${c.actionResource}</span>
                     		</li>
                 		`;
             		});
@@ -183,8 +149,8 @@
 					character.bonusActions.forEach(c => {
                 		html += `
                     		<li>
-                       			${c.bonusActionName}:
-                        		${c.bonusActionDescription} - uses ${c.bonusActionResource}
+                       			<span class="bonus-action-name">${c.bonusActionName}</span>:
+            					${c.bonusActionDescription} - uses <span class="bonus-action-resource">${c.bonusActionResource}</span>
                     		</li>
                 		`;
             		});
@@ -199,8 +165,8 @@
 					character.reactions.forEach(c => {
                 		html += `
                     		<li>
-                       			${c.reactionName}:
-                        		${c.reactionDescription} - uses ${c.reactionResources}
+                       			<span class="reaction-name">${c.reactionName}</span>: 
+								${c.reactionDescription} - uses <span class="reaction-resource">${c.reactionResources}</span>
                     		</li>
                 		`;
             		});
@@ -212,7 +178,7 @@
     						<h3>Class Features:</h3>
     						<ul>
       							${character.classActions
-        						.map(c => `<li>${c.featureName}: ${c.featureDescription}</li>`)
+        						.map(c => `<li><span class="feature-name">${c.featureName}</span>: ${c.featureDescription}</li>`)
         						.join("")}
     						</ul>
   							`;
@@ -292,7 +258,11 @@
 					<h3>Actions:</h3>
 					<ul>
 						${selectedCharacter.actions
-						.map(c => `<li>${c.actionName}: ${c.actionDescription} - uses ${c.actionResource}</li>`)
+						.map(c => `<li>
+							<span class="action-name">${c.actionName}</span>:
+            					${c.actionDescription} - uses 
+            					<span class="action-resource">${c.actionResource}</span>
+							</li>`)
 						.join("")}
 					</ul>
 				</div>
@@ -301,7 +271,11 @@
 					<h3>Bonus Actions:</h3>
 					<ul>
 						${selectedCharacter.bonusActions
-						.map(c => `<li>${c.bonusActionName}: ${c.bonusActionDescription} - uses ${c.bonusActionResource}</li>`)
+						.map(c => `<li>
+								<span class="bonus-action-name">${c.bonusActionName}</span>:
+            						${c.bonusActionDescription} - uses 
+            						<span class="bonus-action-resource">${c.bonusActionResource}</span>
+								</li>`)
 						.join("")}
 					</ul>
 				</div>
@@ -310,7 +284,10 @@
 					<h3>Reactions:</h3>
 					<ul>
 						${selectedCharacter.reactions
-						.map(c => `<li>${c.reactionName}: ${c.reactionDescription} - uses ${c.reactionResources}</li>`)
+						.map(c => `<li>
+								<span class="reaction-name">${c.reactionName}</span>: 
+								${c.reactionDescription} - uses <span class="reaction-resource">${c.reactionResources}</span>
+							</li>`)
 						.join("")}
 					</ul>
 				</div>
@@ -318,7 +295,7 @@
 				<h3>Class Features:</h3>
 				<ul>
 					${selectedCharacter.classActions
-					.map(c => `<li>${c.featureName}: ${c.featureDescription}</li>`)
+					.map(c => `<li><span class="feature-name">${c.featureName}</span>: ${c.featureDescription}</li>`)
 					.join("")}
 				</ul>
 				<h3>Resources:</h3>
