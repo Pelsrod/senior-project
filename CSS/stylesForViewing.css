@@ -1,0 +1,36 @@
+#actionSection,
+#bonusActionSection,
+#reactionSection {
+  border-left: 5px solid #3b82f6;
+}
+
+.used {
+  opacity: 0.5;
+  border-left: 5px solid #ef4444;
+}
+
+.action-name,
+.bonus-action-name,
+.reaction-name,
+.feature-name {
+  color: #facc15;
+  font-weight: bold;
+}
+
+.action-resource,
+.bonus-action-resource,
+.reaction-resource {
+  color: #34d399;
+  font-style: italic;
+}
+
+.token {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #888;
+}
+
+.token.filled {
+  background: #22c55e;
+}

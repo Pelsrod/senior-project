@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="CSS/base.css">
+<link rel="stylesheet" type="text/css" href="CSS/components.css">
+<link rel="stylesheet" type="text/css" href="CSS/stylesForUpdating.css">
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,19 +11,24 @@
 </head>
 
 <body>
-	<p>Update Your Character</p>
-    <button onclick = "backToHome()">Back To Homepage</button>
-    <button onclick = "createCharacter()">Create New Character</button>
-	<button onclick = "backToView()">Back To Gameplay</button><br>
-	<button onclick = "updateSelectedCharacter()">Update Selected Character</button>
-	<button onclick = "updateCharacterFile()">Update Inserted Character</button><br>
-	<button onclick = "createCharacterFile()">Create Character File</button>
-	<button onclick = "deleteSelectedCharacter()">Remove selected Character</button><br>
-	<select id = "characterDropdown"></select>
-	<div class = "input-group">
-		<label for="characterToView">Insert Export JSON:</label>
-        <input class="characterToView" type="file" id="characterFile" accept = ".json">
-	</div>
+	<nav>
+		<ul>
+			<li>Update Your Character</li>
+			<li><button onclick = "backToHome()">Back To Homepage</button></li>
+			<li><button onclick = "createCharacter()">Create New Character</button></li>
+			<li><button onclick = "backToView()">Back To Gameplay</button></li>
+		</ul>
+	</nav>
+	<nav class="characterUpdates">
+		<ul>
+			<li><button onclick = "updateSelectedCharacter()">Update Selected Character</button></li>
+			<li><button onclick = "updateCharacterFile()">Update Inserted Character</button></li>
+			<li><button onclick = "createCharacterFile()">Create Character File</button></li>
+			<li><button onclick = "deleteSelectedCharacter()">Remove selected Character</button></li>
+			<li><select id = "characterDropdown"></select></li>
+			<li>Insert Exported Character:<input class="characterToView" type="file" id="characterFile" accept = ".json"></li>
+		</ul>
+	</nav>
 	<div id = "characterDetails" class = "details"></div>
 	<script>
 		let characters = [];

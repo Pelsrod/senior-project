@@ -1,0 +1,60 @@
+nav {
+  background: #2a2a32;
+  padding: 0.75rem;
+  border-bottom: 2px solid #3f3f46;
+}
+
+nav ul {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+button {
+  background: #3b82f6;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+button.disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+select,
+textarea,
+input[type="file"] {
+  background: #1f1f25;
+  color: #e4e4e7;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 0.4rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin: 0.6rem 0;
+}
+
+.input-group label {
+  font-size: 0.85rem;
+  color: #a1a1aa;
+}
+
+.section-box {
+  background: #2a2a32;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-top: 1rem;
+}

@@ -1,0 +1,28 @@
+#actionSection,
+#bonusActionSection,
+#reactionSection {
+  border-left: 5px solid #6366f1;
+}
+
+.class-block {
+  background: #2a2a32;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+textarea {
+  min-height: 50px;
+  resize: vertical;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 5px #3b82f6;
+}
+
+ul li:hover {
+  background: rgba(255,255,255,0.05);
+}

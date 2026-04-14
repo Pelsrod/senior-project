@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<link rel="stylesheet" type="text/css" href="stylesSenior.css">
+<link rel="stylesheet" type="text/css" href="CSS/base.css">
+<link rel="stylesheet" type="text/css" href="CSS/components.css">
+<link rel="stylesheet" type="text/css" href="CSS/stylesForViewing.css">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,16 +11,21 @@
 </head>
 
 <body>
-	<p>Viewing and Gameplay</p>
-	<button onclick = "backToHome()">Back To Homepage</button>
-	<button onclick = "updateCharacter()">Update a Character</button><br>
-	<button onclick = "viewSelectedCharacter()">View Selected Character</button>
-	<button onclick = "viewCharacterFile()">View Inserted Character</button><br>
-	<select id = "characterDropdown"></select>
-	<div class = "input-group">
-		<label for="characterToView">Insert Export JSON:</label>
-        <input class="characterToView" type="file" id="characterFile" accept = ".json">
-	</div>
+	<nav>
+		<ul>
+			<li>Viewing and Gameplay</li>
+			<li><button onclick = "backToHome()">Back To Homepage</button></li>
+			<li><button onclick = "updateCharacter()">Update a Character</button></li>
+		</ul>
+	</nav>
+	<nav class="characterNav">
+		<ul>
+			<li><button onclick = "viewSelectedCharacter()">View Selected Character</button></li>
+			<li><button onclick = "viewCharacterFile()">View Inserted JSON</button></li>
+			<li><select id = "characterDropdown"></select></li>
+			<li>Insert Exported Charcter JSON:<input class="characterToView" type="file" id="characterFile" accept = ".json"></li>
+		</ul>
+	</nav>
 	<div id = "characterDetails" class = "details"></div>
 	<script>
 		let action = 1;
