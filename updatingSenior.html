@@ -1,785 +1,786 @@
 <!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="CSS/base.css">
-<link rel="stylesheet" type="text/css" href="CSS/components.css">
-<link rel="stylesheet" type="text/css" href="CSS/stylesForUpdating.css">
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Update Page</title>
-    
-</head>
+	<link rel="stylesheet" type="text/css" href="CSS/base.css">
+	<link rel="stylesheet" type="text/css" href="CSS/components.css">
+	<link rel="stylesheet" type="text/css" href="CSS/stylesForUpdating.css">
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Character Update Page</title>
+		
+	</head>
 
-<body>
-	<nav>
-		<ul>
-			<li>Update Your Character</li>
-			<li><button onclick = "backToHome()">Back To Homepage</button></li>
-			<li><button onclick = "createCharacter()">Create New Character</button></li>
-			<li><button onclick = "backToView()">Back To Gameplay</button></li>
-		</ul>
-	</nav>
-	<nav class="characterUpdates">
-		<ul>
-			<li><button onclick = "updateSelectedCharacter()">Update Selected Character</button></li>
-			<li><button onclick = "updateCharacterFile()">Update Inserted Character</button></li>
-			<li><button onclick = "createCharacterFile()">Create Character File</button></li>
-			<li><button onclick = "deleteSelectedCharacter()">Remove selected Character</button></li>
-			<li><select id = "characterDropdown"></select></li>
-			<li>Insert Exported Character:<input class="characterToView" type="file" id="characterFile" accept = ".json"></li>
-		</ul>
-	</nav>
-	<div id = "characterDetails" class = "details"></div>
-	<script>
-		let characters = [];
-		let classCount = 1;
-		let classBlock = 0;
-		let currentCharacterIndex = null;
+	<body>
+		<nav>
+			<ul>
+				<li>Update Your Character</li>
+				<li><button onclick = "backToHome()">Back To Homepage</button></li>
+				<li><button onclick = "createCharacter()">Create New Character</button></li>
+				<li><button onclick = "backToView()">Back To Gameplay</button></li>
+			</ul>
+		</nav>
+		<nav class="characterUpdates">
+			<ul>
+				<li><button onclick = "updateSelectedCharacter()">Update Selected Character</button></li>
+				<li><button onclick = "updateCharacterFile()">Update Inserted Character</button></li>
+				<li><button onclick = "createCharacterFile()">Create Character File</button></li>
+				<li><button onclick = "deleteSelectedCharacter()">Remove selected Character</button></li>
+				<li><select id = "characterDropdown"></select></li>
+				<li>Insert Exported Character:<input class="characterToView" type="file" id="characterFile" accept = ".json"></li>
+			</ul>
+		</nav>
+		<div id = "characterDetails" class = "details"></div>
+		<script>
+			let characters = [];
+			let classCount = 1;
+			let classBlock = 0;
+			let currentCharacterIndex = null;
 
 
-		function loadCharacterList(){
-			const dropdown = document.getElementById("characterDropdown");
-			dropdown.innerHTML = "";
+			function loadCharacterList(){
+				const dropdown = document.getElementById("characterDropdown");
+				dropdown.innerHTML = "";
 
-			const stored = localStorage.getItem('characters');
+				const stored = localStorage.getItem('characters');
 
-			if(!stored){
+				if(!stored){
+					dropdown.innerHTML =
+					`<option disabled selected>No characters saved</option>`;
+					return;
+				}
+
+				characters = JSON.parse(stored);
+
+				characters.sort((a,b)=>a.name.localeCompare(b.name));
+
 				dropdown.innerHTML =
-				`<option disabled selected>No characters saved</option>`;
-				return;
+					`<option disabled selected>Pick a Character</option>`;
+
+				characters.forEach((char,index)=>{
+					const opt=document.createElement("option");
+					opt.value=index;
+					opt.textContent=char.name;
+					dropdown.appendChild(opt);
+				});
 			}
 
-			characters = JSON.parse(stored);
+			function renderCharacter(selectedCharacter){
 
-			characters.sort((a,b)=>a.name.localeCompare(b.name));
+				const detail=document.getElementById("characterDetails");
 
-			dropdown.innerHTML =
-				`<option disabled selected>Pick a Character</option>`;
+				detail.innerHTML = `
+					<h2>${selectedCharacter.name}</h2>
+					<p><strong>Total Level:</strong> ${selectedCharacter.totalLevel}</p>
 
-			characters.forEach((char,index)=>{
-				const opt=document.createElement("option");
-				opt.value=index;
-				opt.textContent=char.name;
-				dropdown.appendChild(opt);
-			});
-		}
+					<h3>Classes</h3>
+					<ul>
+						${selectedCharacter.classes
+							.map(c=>`<li>${c.className}: ${c.subClassName} - Level ${c.classLevel}</li>`)
+							.join("")}
+					</ul>
 
-		function renderCharacter(selectedCharacter){
+					<button onclick="addClass()">Add Another class</button>
+					<button onclick="removeClass()">Remove Previous class</button><br>
 
-			const detail=document.getElementById("characterDetails");
+					<button onclick="characterLevelChange()">Change Character Level</button>
+					<button onclick="classLevelChange()">Change Class Level</button>
 
-			detail.innerHTML = `
-				<h2>${selectedCharacter.name}</h2>
-				<p><strong>Total Level:</strong> ${selectedCharacter.totalLevel}</p>
+					${buildSections(selectedCharacter)}
+				`;
 
-				<h3>Classes</h3>
-				<ul>
-					${selectedCharacter.classes
-						.map(c=>`<li>${c.className}: ${c.subClassName} - Level ${c.classLevel}</li>`)
-						.join("")}
-				</ul>
-
-				<button onclick="addClass()">Add Another class</button>
-				<button onclick="removeClass()">Remove Previous class</button><br>
-
-				<button onclick="characterLevelChange()">Change Character Level</button>
-				<button onclick="classLevelChange()">Change Class Level</button>
-
-				${buildSections(selectedCharacter)}
-			`;
-
-			checkButtonFunctions();
-		}
-		function buildSections(c){
-		return `
-			<div id = "actionSection"> 
-				<h3>Actions:</h3> 
+				checkButtonFunctions();
+			}
+			
+			function buildSections(c){
+			return `
+				<div id = "actionSection"> 
+					<h3>Actions:</h3> 
+					<ul> 
+						${c.actions 
+						.map(a => `<li>${a.actionName}: ${a.actionDescription} - uses ${a.actionResource}</li>`) 
+						.join("")} 
+					</ul> 
+					<div class = "input-group"> 
+						<label for = "actionName">Action Name: </label> 
+						<textarea id="actionName" placeholder="Enter the name of your action"></textarea> 
+					</div> 
+					<div class = "input-group"> 
+						<label for = "actionDescription">Action Description: </label> 
+						<textarea id="actionDescription" placeholder="Give a brief description of the range, damage type, and damage roll and/or what your action does"></textarea> 
+					</div> 
+					<div class = "input-group"> 
+						<label for = "actionResources">Action Resources: </label> 
+						<textarea id="actionResources" placeholder="List what resource your action uses, i.e spell slot, action+bonus action, ki point, etc"></textarea> 
+					</div> 
+					<button onclick = "addAction()">Add to Action List</button> 
+					<button onclick = "removeAction()">Remove an Action</button> 
+				</div>
+				<div id = "bonusActionSection"> 
+					<h3>Bonus Actions:</h3> 
+					<ul> 
+						${c.bonusActions 
+						.map(b => `<li>${b.bonusActionName}: ${b.bonusActionDescription} - uses ${b.bonusActionResource}</li>`) 
+						.join("")} 
+					</ul> 
+					<div class = "input-group"> 
+						<label for = "bonusActionName">Bonus Action Name: </label> 
+						<textarea id="bonusActionName" placeholder="Enter the name of your bonus action"></textarea> 
+					</div> 
+					<div class = "input-group"> 
+						<label for = "bonusActionDescription">Bonus Action Description: </label> 
+						<textarea id="bonusActionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your bonus action does."></textarea> 
+					</div> 
+					<div class = "input-group"> <label for = "BonusActionResources">Bonus Action Resources: </label> 
+						<textarea id="bonusActionResources" placeholder="List what resource your reaction uses, i.e spell slot and spell level, ki point, etc"></textarea> 
+					</div> 
+					<button onclick = "addBonusAction()">Add to Bonus Action List</button> 
+					<button onclick = "removeBonusAction()">Remove a Bonus Action</button> 
+				</div> 
+				<div id = "reactionSection"> 
+					<h3>Reactions:</h3>
+					<ul> ${c.reactions .map(r => `<li>${r.reactionName}: ${r.reactionDescription} - uses ${r.reactionResources}</li>`) .join("")} 
+					</ul> 
+					<div class = "input-group"> 
+						<label for = "reactionName">Reaction Name: </label> 
+						<textarea id="reactionName" placeholder="Enter the name of your reaction"></textarea> 
+					</div> 
+					<div class = "input-group"> 
+						<label for = "reactionDescription">Reaction Description: </label> 
+						<textarea id="reactionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your reaction does"></textarea> 
+					</div> 
+					<div class = "input-group"> 
+						<label for = "reactionResources">Reaction Resources: </label> 
+						<textarea id="reactionResources" placeholder="List what resource your reaction uses, i.e spell slot, ki point, etc"></textarea> 
+					</div> 
+					<button onclick = "addReaction()">Add to Reaction List</button> 
+					<button onclick = "removeReaction()">Remove a Reaction</button>
+				</div> 
+				<h3>Class Features:</h3> 
 				<ul> 
-					${c.actions 
-					.map(a => `<li>${a.actionName}: ${a.actionDescription} - uses ${a.actionResource}</li>`) 
+					${c.classActions 
+					.map(a => `<li>${a.featureName}: ${a.featureDescription}</li>`) 
 					.join("")} 
 				</ul> 
-				<div class = "input-group"> 
-					<label for = "actionName">Action Name: </label> 
-					<textarea id="actionName" placeholder="Enter the name of your action"></textarea> 
-				</div> 
-				<div class = "input-group"> 
-					<label for = "actionDescription">Action Description: </label> 
-					<textarea id="actionDescription" placeholder="Give a brief description of the range, damage type, and damage roll and/or what your action does"></textarea> 
-				</div> 
-				<div class = "input-group"> 
-					<label for = "actionResources">Action Resources: </label> 
-					<textarea id="actionResources" placeholder="List what resource your action uses, i.e spell slot, action+bonus action, ki point, etc"></textarea> 
-				</div> 
-				<button onclick = "addAction()">Add to Action List</button> 
-				<button onclick = "removeAction()">Remove an Action</button> 
-			</div>
-			<div id = "bonusActionSection"> 
-				<h3>Bonus Actions:</h3> 
-				<ul> 
-					${c.bonusActions 
-					.map(b => `<li>${b.bonusActionName}: ${b.bonusActionDescription} - uses ${b.bonusActionResource}</li>`) 
-					.join("")} 
-				</ul> 
-				<div class = "input-group"> 
-					<label for = "bonusActionName">Bonus Action Name: </label> 
-					<textarea id="bonusActionName" placeholder="Enter the name of your bonus action"></textarea> 
-				</div> 
-				<div class = "input-group"> 
-					<label for = "bonusActionDescription">Bonus Action Description: </label> 
-					<textarea id="bonusActionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your bonus action does."></textarea> 
-				</div> 
-				<div class = "input-group"> <label for = "BonusActionResources">Bonus Action Resources: </label> 
-					<textarea id="bonusActionResources" placeholder="List what resource your reaction uses, i.e spell slot and spell level, ki point, etc"></textarea> 
-				</div> 
-				<button onclick = "addBonusAction()">Add to Bonus Action List</button> 
-				<button onclick = "removeBonusAction()">Remove a Bonus Action</button> 
-			</div> 
-			<div id = "reactionSection"> 
-				<h3>Reactions:</h3>
-				<ul> ${c.reactions .map(r => `<li>${r.reactionName}: ${r.reactionDescription} - uses ${r.reactionResources}</li>`) .join("")} 
-				</ul> 
-				<div class = "input-group"> 
-					<label for = "reactionName">Reaction Name: </label> 
-					<textarea id="reactionName" placeholder="Enter the name of your reaction"></textarea> 
-				</div> 
-				<div class = "input-group"> 
-					<label for = "reactionDescription">Reaction Description: </label> 
-					<textarea id="reactionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your reaction does"></textarea> 
-				</div> 
-				<div class = "input-group"> 
-					<label for = "reactionResources">Reaction Resources: </label> 
-					<textarea id="reactionResources" placeholder="List what resource your reaction uses, i.e spell slot, ki point, etc"></textarea> 
-				</div> 
-				<button onclick = "addReaction()">Add to Reaction List</button> 
-				<button onclick = "removeReaction()">Remove a Reaction</button>
-			</div> 
-			<h3>Class Features:</h3> 
-			<ul> 
-				${c.classActions 
-				.map(a => `<li>${a.featureName}: ${a.featureDescription}</li>`) 
-				.join("")} 
-			</ul> 
-				<div class = "input-group"> 
-					<label for = "classFeatureName">Class Feature Name: </label> 
-					<textarea id="classFeatureName" placeholder="Enter the name of your class feature"></textarea> 
-				</div> 
-				<div class = "input-group"> 
-					<label for = "classFeatureDescription">Class Feature Description: </label> 
-					<textarea id="classFeatureDescription" placeholder="Give a brief description of your class feature."></textarea> 
-				</div> 
-				<button onclick = "addClassFeature()">Add to Class Feature List</button> 
-				<button onclick = "removeClassFeature()">Remove a Class Feature</button>
-				<h3>Resources</h3> 
-				<ul> 
-					${c.otherResources 
-					.map(r => `<li>${r.resourceName}: ${r.resourceAmount}</li>`) 
-					.join("")} 
-				</ul> 
-				<div class = "input-group"> 
-					<label for = "resourceName">Resource Name: </label> 
-					<textarea id="resourceName" placeholder="Enter the name of your resource"></textarea> 
-				</div> 
-				<div class = "input-group"> 
-					<label for="resourceAmount">Resource Amount:</label> 
-					<select id="resourceAmount"> 
-						${Array.from({length: 20}, (_, i) => `<option value="${i + 1}">${i + 1}</option>` )
-						.join('')} 
-					</select> 
-				</div> 
-				<button onclick = "addResource()">Add to Resource List</button> 
-				<button onclick = "removeResource()">Remove a Resource</button> 
-				<button onclick = "updateResourceAmount()">Update Resource Amount</button>
-			`;
-		}
-
-		function updateCharacterFile(){
-			const fileInput=document.getElementById("characterFile");
-			if(!fileInput.files.length){
-				alert("Select a JSON file.");
-				return;
+					<div class = "input-group"> 
+						<label for = "classFeatureName">Class Feature Name: </label> 
+						<textarea id="classFeatureName" placeholder="Enter the name of your class feature"></textarea> 
+					</div> 
+					<div class = "input-group"> 
+						<label for = "classFeatureDescription">Class Feature Description: </label> 
+						<textarea id="classFeatureDescription" placeholder="Give a brief description of your class feature."></textarea> 
+					</div> 
+					<button onclick = "addClassFeature()">Add to Class Feature List</button> 
+					<button onclick = "removeClassFeature()">Remove a Class Feature</button>
+					<h3>Resources</h3> 
+					<ul> 
+						${c.otherResources 
+						.map(r => `<li>${r.resourceName}: ${r.resourceAmount}</li>`) 
+						.join("")} 
+					</ul> 
+					<div class = "input-group"> 
+						<label for = "resourceName">Resource Name: </label> 
+						<textarea id="resourceName" placeholder="Enter the name of your resource"></textarea> 
+					</div> 
+					<div class = "input-group"> 
+						<label for="resourceAmount">Resource Amount:</label> 
+						<select id="resourceAmount"> 
+							${Array.from({length: 20}, (_, i) => `<option value="${i + 1}">${i + 1}</option>` )
+							.join('')} 
+						</select> 
+					</div> 
+					<button onclick = "addResource()">Add to Resource List</button> 
+					<button onclick = "removeResource()">Remove a Resource</button> 
+					<button onclick = "updateResourceAmount()">Update Resource Amount</button>
+				`;
 			}
 
-			const reader=new FileReader();
-
-			reader.onload=function(e){
-				try{
-
-					const importedCharacter =
-						JSON.parse(e.target.result);
-
-					characters.push(importedCharacter);
-
-					localStorage.setItem(
-						"characters",
-						JSON.stringify(characters)
-					);
-
-					loadCharacterList();
-
-					currentCharacterIndex = characters.length-1;
-
-					renderCharacter(importedCharacter);
-
-					alert("Character imported!");
-
-				}catch{
-					alert("Invalid JSON file.");
+			function updateCharacterFile(){
+				const fileInput=document.getElementById("characterFile");
+				if(!fileInput.files.length){
+					alert("Select a JSON file.");
+					return;
 				}
-			};
 
-			reader.readAsText(fileInput.files[0]);
-		}
-		
-		function updateSelectedCharacter(){
-			const dropdown=document.getElementById("characterDropdown");
-			const selectedIndex=dropdown.value;
+				const reader=new FileReader();
 
-			if(selectedIndex == "" || selectedIndex == "Pick a Character"){
-				alert("Select a character");
-				clearCharacterUI();
-				return;
+				reader.onload=function(e){
+					try{
+
+						const importedCharacter =
+							JSON.parse(e.target.result);
+
+						characters.push(importedCharacter);
+
+						localStorage.setItem(
+							"characters",
+							JSON.stringify(characters)
+						);
+
+						loadCharacterList();
+
+						currentCharacterIndex = characters.length-1;
+
+						renderCharacter(importedCharacter);
+
+						alert("Character imported!");
+
+					}catch{
+						alert("Invalid JSON file.");
+					}
+				};
+
+				reader.readAsText(fileInput.files[0]);
 			}
-			currentCharacterIndex=selectedIndex;
-			renderCharacter(characters[selectedIndex]);
-		}
+			
+			function updateSelectedCharacter(){
+				const dropdown=document.getElementById("characterDropdown");
+				const selectedIndex=dropdown.value;
 
-		function addClass(){
-			if(classBlock > 0){
-				return;
-			}
-			const container = document.getElementById('characterDetails');
-			const newBlock = document.createElement('div');
-			newBlock.classList.add('class-block');
-
-			newBlock.innerHTML = `
-				<div class = "input-group">
-					<label for="newClassCharacter">Class:</label>
-        				<textarea id="newClassCharacter" placeholder="Enter your class name here"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for="newSubClassCharacter">Sub Class:</label>
-        				<textarea id="newSubClassCharacter" placeholder="Enter your subclass name here"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for="newLevel">Class Level:</label>
-        				<select id="newLevel">
-                        			${Array.from({length: 20}, (_, i) => 
-                  	    				`<option value="${i + 1}">${i + 1}</option>`
-                        				).join('')}
-                    			</select>
-				</div>
-				<button onclick = "addNewClass()">addNewClass</button>
-			`;
-			container.appendChild(newBlock);
-		}
-
-		function addNewClass(){
-			if(classCount > 1){
-				alert("Too many classes at the moment");
-				return;
-			}
-			const totalLevel = characters[currentCharacterIndex].totalLevel;
-			const otherLevel = characters[currentCharacterIndex].classes.classLevel;
-			const name = document.getElementById('newClassCharacter').value.trim();
-			const subName = document.getElementById('newSubClassCharacter').value.trim();
-			const level = parseInt(document.getElementById('newLevel').value)
-			if(totalLevel == 20){
-				alert("You cannot add a new class while you are at max level");
-				return;
-			}
-			if(name != '' && level + otherLevel == totalLevel){
-				const newClass = {
-					className: name,
-					subClassName: subName,
-					classLevel: level
+				if(selectedIndex == "" || selectedIndex == "Pick a Character"){
+					alert("Select a character");
+					clearCharacterUI();
+					return;
 				}
-				characters[currentCharacterIndex].classes.push(newClass);
-				localStorage.setItem('characters', JSON.stringify(characters));
-				alert("The " + newClass.className + " class has been added to your character");
-				classCount++;
-				updateSelectedCharacter();
-			}else{
-				alert("Make sure your class has a name and that your class levels add up to your character level");
-				return;
+				currentCharacterIndex=selectedIndex;
+				renderCharacter(characters[selectedIndex]);
 			}
-		}
 
-		function removeClass(){
-			if(currentCharacterIndex === null){
-				alert("No character selected.");
-				return;
-			}
-			if(classCount == 1){
-				alert("Your character must have at least one class");
-				return;
-			}
-			const classListText = classes
-				.map((a, i) => `${i + 1}. ${a.className} - ${a.subClassName}`)
-				.join("\n");
-			const choice = prompt(
-				"Enter the number of the action to remove:\n\n" + classListText
-			);
-			if(choice === null) return;
-			const index = parseInt(choice) - 1;
-			if(isNaN(index) || index < 0 || index >= classes.length){
-				alert("Invalid selection.");
-				return;
-			}
-			const removed = classes.splice(index, 1);
-			localStorage.setItem('characters', JSON.stringify(characters));
-			alert(removed[0].className + " removed.");
-			updateSelectedCharacter();
-		}
+			function addClass(){
+				if(classBlock > 0){
+					return;
+				}
+				const container = document.getElementById('characterDetails');
+				const newBlock = document.createElement('div');
+				newBlock.classList.add('class-block');
 
-		
-		function characterLevelChange(){
-			if(currentCharacterIndex === null){
-				alert("No character selected.");
-				return;
+				newBlock.innerHTML = `
+					<div class = "input-group">
+						<label for="newClassCharacter">Class:</label>
+							<textarea id="newClassCharacter" placeholder="Enter your class name here"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for="newSubClassCharacter">Sub Class:</label>
+							<textarea id="newSubClassCharacter" placeholder="Enter your subclass name here"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for="newLevel">Class Level:</label>
+							<select id="newLevel">
+										${Array.from({length: 20}, (_, i) => 
+											`<option value="${i + 1}">${i + 1}</option>`
+											).join('')}
+									</select>
+					</div>
+					<button onclick = "addNewClass()">addNewClass</button>
+				`;
+				container.appendChild(newBlock);
 			}
-			const character = characters[currentCharacterIndex];
-			const newLevel = prompt(
-				`Current level: ${character.totalLevel}\n\nEnter new character level (1–20):`
-			);
-			if(newLevel === null) return;
-			const parsedLevel = parseInt(newLevel);
-			if(isNaN(parsedLevel) || parsedLevel < 1 || parsedLevel > 20){
-				alert("Please enter a valid level between 1 and 20.");
-				return;
+
+			function addNewClass(){
+				if(classCount > 1){
+					alert("Too many classes at the moment");
+					return;
+				}
+				const totalLevel = characters[currentCharacterIndex].totalLevel;
+				const otherLevel = characters[currentCharacterIndex].classes.classLevel;
+				const name = document.getElementById('newClassCharacter').value.trim();
+				const subName = document.getElementById('newSubClassCharacter').value.trim();
+				const level = parseInt(document.getElementById('newLevel').value)
+				if(totalLevel == 20){
+					alert("You cannot add a new class while you are at max level");
+					return;
+				}
+				if(name != '' && level + otherLevel == totalLevel){
+					const newClass = {
+						className: name,
+						subClassName: subName,
+						classLevel: level
+					}
+					characters[currentCharacterIndex].classes.push(newClass);
+					localStorage.setItem('characters', JSON.stringify(characters));
+					alert("The " + newClass.className + " class has been added to your character");
+					classCount++;
+					updateSelectedCharacter();
+				}else{
+					alert("Make sure your class has a name and that your class levels add up to your character level");
+					return;
+				}
 			}
-			const classTotal = character.classes
-				.reduce((sum, c) => sum + c.classLevel, 0);
-			if(classTotal > parsedLevel){
-				alert(
-					"Your class levels exceed this total level.\n" +
-					"Adjust class levels first."
+
+			function removeClass(){
+				if(currentCharacterIndex === null){
+					alert("No character selected.");
+					return;
+				}
+				if(classCount == 1){
+					alert("Your character must have at least one class");
+					return;
+				}
+				const classListText = classes
+					.map((a, i) => `${i + 1}. ${a.className} - ${a.subClassName}`)
+					.join("\n");
+				const choice = prompt(
+					"Enter the number of the action to remove:\n\n" + classListText
 				);
-				return;
-			}
-			character.totalLevel = parsedLevel;
-			localStorage.setItem('characters', JSON.stringify(characters));
-			alert(character.name + " is now level " + parsedLevel);
-			updateSelectedCharacter();
-		}
-
-		function classLevelChange(){
-			if(currentCharacterIndex === null){
-				alert("No character selected.");
-				return;
-			}
-			const character = characters[currentCharacterIndex];
-			const classes = character.classes;
-			if(!classes || classes.length === 0){
-				alert("This character has no classes.");
-				return;
-			}
-			const classListText = classes
-				.map((c, i) => `${i + 1}. ${c.className} (${c.classLevel})`)
-				.join("\n");
-			const choice = prompt("Enter the number of the class to change:\n\n" + classListText);
-			if(choice === null) return;
-			const index = parseInt(choice) - 1;
-			if(isNaN(index) || index < 0 || index >= classes.length){
-				alert("Invalid selection.");
-				return;
-			}
-			const newLevel = prompt(
-				`Enter new level for ${classes[index].className}:`
-			);
-			if(newLevel === null) return;
-			const parsedLevel = parseInt(newLevel);
-
-			if(isNaN(parsedLevel) || parsedLevel < 1 || parsedLevel > 20){
-				alert("Please enter a valid level (1–20).");
-				return;
-			}
-			const newTotalClassLevels = classes.reduce((sum, c, i) => sum + (i === index ? parsedLevel : c.classLevel), 0);
-			if(newTotalClassLevels > character.totalLevel){
-				alert("Class levels cannot exceed total character level (" + character.totalLevel + ").");
-				return;
-			}
-			classes[index].classLevel = parsedLevel;
-			localStorage.setItem('characters', JSON.stringify(characters));
-			alert(classes[index].className + " updated to level " + parsedLevel);
-			updateSelectedCharacter();
-		}
-
-		function checkAction(){
-			if(document.getElementById('actionName').value.trim() == ""){
-				alert('Make sure your action has a name');
-				return false;
-			}
-			if(document.getElementById('actionDescription').value.trim() == ""){
-				alert('Make sure your action has a description');
-				return false;
-			}
-			if(document.getElementById('actionResources').value.trim() == ""){
-				alert('Make sure your action has a resource or type NA');
-				return false;
-			}
-			return true;
-		}
-
-		function addAction(){
-			if(checkAction()){
-				const action = {
-					actionName: document.getElementById('actionName').value.trim(),
-					actionDescription: document.getElementById('actionDescription').value.trim(),
-					actionResource: document.getElementById('actionResources').value.trim()
-				};
-				characters[currentCharacterIndex].actions.push(action);
-				localStorage.setItem('characters', JSON.stringify(characters));
-				alert("The " + action.actionName + " action has been added to your character");
-				updateSelectedCharacter();
-			}
-		}
-
-		function removeAction(){
-			if(currentCharacterIndex === null){
-				alert("No character selected.");
-				return;
-			}
-			const actions = characters[currentCharacterIndex].actions;
-			if(actions.length === 0){
-				alert("This character has no actions.");
-				return;
-			}
-			const actionListText = actions
-				.map((a, i) => `${i + 1}. ${a.actionName}`)
-				.join("\n");
-			const choice = prompt(
-				"Enter the number of the action to remove:\n\n" + actionListText
-			);
-			if(choice === null) return;
-			const index = parseInt(choice) - 1;
-			if(isNaN(index) || index < 0 || index >= actions.length){
-				alert("Invalid selection.");
-				return;
-			}
-			const removed = actions.splice(index, 1);
-			localStorage.setItem('characters', JSON.stringify(characters));
-			alert(removed[0].actionName + " removed.");
-			updateSelectedCharacter();
-		}
-
-		function checkBonusAction(){
-			if(document.getElementById('bonusActionName').value.trim() == ""){
-				alert('Make sure your bonus action has a name');
-				return false;
-			}
-			if(document.getElementById('bonusActionDescription').value.trim() == ""){
-				alert('Make sure your bonus action has a description');
-				return false;
-			}
-			if(document.getElementById('bonusActionResources').value.trim() == ""){
-				alert('Make sure your bonus action has a resource or type NA');
-				return false;
-			}
-			return true;
-		}
-
-		function addBonusAction(){
-			if(checkBonusAction()){
-				const bonusAction = {
-					bonusActionName: document.getElementById('bonusActionName').value.trim(),
-					bonusActionDescription: document.getElementById('bonusActionDescription').value.trim(),
-					bonusActionResource: document.getElementById('bonusActionResources').value.trim()
-				};
-				characters[currentCharacterIndex].bonusActions.push(bonusAction);
-				localStorage.setItem('characters', JSON.stringify(characters));
-				alert("The " + bonusAction.bonusActionName + " bonus action has been added to your character");
-				updateSelectedCharacter();
-			}
-		}
-
-		function removeBonusAction(){
-			if(currentCharacterIndex === null){
-				alert("No character selected.");
-				return;
-			}
-			const bonusActions = characters[currentCharacterIndex].bonusActions;
-			if(bonusActions.length === 0){
-				alert("This character has no bonus actions.");
-				return;
-			}
-			const bonusActionListText = bonusActions
-				.map((a, i) => `${i + 1}. ${a.bonusActionName}`)
-				.join("\n");
-			const choice = prompt(
-				"Enter the number of the bonus action to remove:\n\n" + bonusActionListText
-			);
-			if(choice === null) return;
-			const index = parseInt(choice) - 1;
-			if(isNaN(index) || index < 0 || index >= bonusActions.length){
-				alert("Invalid selection.");
-				return;
-			}
-			const removed = bonusActions.splice(index, 1);
-			localStorage.setItem('characters', JSON.stringify(characters));
-			alert(removed[0].bonusActionName + " removed.");
-			updateSelectedCharacter();
-		}
-
-		function addReaction(){
-			if(checkReaction()){
-				const reaction = {
-					reactionName: document.getElementById('reactionName').value.trim(),
-					reactionDescription: document.getElementById('reactionDescription').value.trim(),
-					reactionResources: document.getElementById('reactionResources').value.trim()
-				};
-				characters[currentCharacterIndex].reactions.push(reaction);
-				localStorage.setItem('characters', JSON.stringify(characters));
-				alert("The " + reaction.reactionName + " reaction has been added to your character");
-				updateSelectedCharacter();
-			}
-		}
-
-		function removeReaction(){
-			if(currentCharacterIndex === null){
-				alert("No character selected.");
-				return;
-			}
-			const reactions = characters[currentCharacterIndex].reactions;
-			if(reactions.length === 0){
-				alert("This character has no reactions.");
-				return;
-			}
-			const reactionListText = reactions
-				.map((a, i) => `${i + 1}. ${a.reactionName}`)
-				.join("\n");
-			const choice = prompt(
-				"Enter the number of the reaction to remove:\n\n" + reactionListText
-			);
-			if(choice === null) return;
-			const index = parseInt(choice) - 1;
-			if(isNaN(index) || index < 0 || index >= reactions.length){
-				alert("Invalid selection.");
-				return;
-			}
-			const removed = reactions.splice(index, 1);
-			localStorage.setItem('characters', JSON.stringify(characters));
-			alert(removed[0].reactionName + " removed.");
-			updateSelectedCharacter();
-		}
-
-		function checkReaction(){
-			if(document.getElementById('reactionName').value.trim() == ""){
-				alert('Make sure your reaction has a name');
-				return false;
-			}
-			if(document.getElementById('reactionDescription').value.trim() == ""){
-				alert('Make sure your reaction has a description');
-				return false;
-			}
-			if(document.getElementById('reactionResources').value.trim() == ""){
-				alert('Make sure your reaction has a resource or type NA');
-				return false;
-			}
-			return true;
-		}
-
-		function addClassFeature(){
-			const name = document.getElementById('classFeatureName').value.trim();
-			const description = document.getElementById('classFeatureDescription').value.trim();
-			if(name != '' && description != ''){
-				const feature = {
-					featureName: name,
-					featureDescription: description
+				if(choice === null) return;
+				const index = parseInt(choice) - 1;
+				if(isNaN(index) || index < 0 || index >= classes.length){
+					alert("Invalid selection.");
+					return;
 				}
-				characters[currentCharacterIndex].classActions.push(feature);
+				const removed = classes.splice(index, 1);
 				localStorage.setItem('characters', JSON.stringify(characters));
-				alert("The " + feature.featureName + " class feature has been added to your character");
+				alert(removed[0].className + " removed.");
 				updateSelectedCharacter();
 			}
-		}
 
-		function removeClassFeature(){
-			if(currentCharacterIndex === null){
-				alert("No character selected.");
-				return;
-			}
-			const features = characters[currentCharacterIndex].classActions;
-			if(features.length === 0){
-				alert("This character has no class features.");
-				return;
-			}
-			const featuresListText = features
-				.map((a, i) => `${i + 1}. ${a.featureName}`)
-				.join("\n");
-			const choice = prompt(
-				"Enter the number of the features to remove:\n\n" + featuresListText
-			);
-			if(choice === null) return;
-			const index = parseInt(choice) - 1;
-			if(isNaN(index) || index < 0 || index >= features.length){
-				alert("Invalid selection.");
-				return;
-			}
-			const removed = features.splice(index, 1);
-			localStorage.setItem('characters', JSON.stringify(characters));
-			alert(removed[0].featureName + " removed.");
-			updateSelectedCharacter();
-		}
-
-		function addResource(){
-			const name = document.getElementById('resourceName').value.trim();
-			if(name != '' ){
-				const resource = {
-					resourceName: name,
-					resourceAmount: parseInt(document.getElementById('resourceAmount').value)
+			
+			function characterLevelChange(){
+				if(currentCharacterIndex === null){
+					alert("No character selected.");
+					return;
 				}
-				characters[currentCharacterIndex].otherResources.push(resource);
+				const character = characters[currentCharacterIndex];
+				const newLevel = prompt(
+					`Current level: ${character.totalLevel}\n\nEnter new character level (1–20):`
+				);
+				if(newLevel === null) return;
+				const parsedLevel = parseInt(newLevel);
+				if(isNaN(parsedLevel) || parsedLevel < 1 || parsedLevel > 20){
+					alert("Please enter a valid level between 1 and 20.");
+					return;
+				}
+				const classTotal = character.classes
+					.reduce((sum, c) => sum + c.classLevel, 0);
+				if(classTotal > parsedLevel){
+					alert(
+						"Your class levels exceed this total level.\n" +
+						"Adjust class levels first."
+					);
+					return;
+				}
+				character.totalLevel = parsedLevel;
 				localStorage.setItem('characters', JSON.stringify(characters));
-				alert("The " + otherResources.resourceName + " resource has been added to your character");
+				alert(character.name + " is now level " + parsedLevel);
 				updateSelectedCharacter();
 			}
-		}
-		
-		function removeResource(){
-			if(currentCharacterIndex === null){
-				alert("No character selected.");
-				return;
-			}
-			const resources = characters[currentCharacterIndex].otherResources;
-			if(resources.length === 0){
-				alert("This character has no resources.");
-				return;
-			}
-			const resourcesListText = resources
-				.map((a, i) => `${i + 1}. ${a.resourceName}`)
-				.join("\n");
-			const choice = prompt(
-				"Enter the number of the resource to remove:\n\n" + resourcesListText
-			);
-			if(choice === null) return;
-			const index = parseInt(choice) - 1;
-			if(isNaN(index) || index < 0 || index >= resources.length){
-				alert("Invalid selection.");
-				return;
-			}
-			const removed = resources.splice(index, 1);
-			localStorage.setItem('characters', JSON.stringify(characters));
-			alert(removed[0].resourceName + " removed.");
-			updateSelectedCharacter();
-		}
 
-		function updateResourceAmount(){
-			if(currentCharacterIndex === null){
-				alert("No character selected.");
-				return;
-			}
-			const resources = characters[currentCharacterIndex].otherResources;
-			if(resources.length === 0){
-				alert("This character has no resources.");
-				return;
-			}
-			const resourcesListText = resources
-				.map((a, i) => `${i + 1}. ${a.resourceName} (${a.resourceAmount})`)
-				.join("\n");
-			const choice = prompt(
-				"Enter the number of the resource to change:\n\n" + resourcesListText
-			);
-			if(choice === null) return;
-			const index = parseInt(choice) - 1;
-			if(isNaN(index) || index < 0 || index >= resources.length){
-				alert("Invalid selection.");
-				return;
-			}
-			const newAmount = prompt(`Enter new amount for ${resources[index].resourceName}:`);
-			if(newAmount === null) return;
-			const parsedAmount = parseInt(newAmount);
-			if(isNaN(parsedAmount) || parsedAmount < 0){
-				alert("Please enter a valid number.");
-				return;
-			}
-			resources[index].resourceAmount = parsedAmount;
-			localStorage.setItem('characters', JSON.stringify(characters));
-			alert(resources[index].resourceName + " updated to " + parsedAmount);
-			updateSelectedCharacter();
-		}
+			function classLevelChange(){
+				if(currentCharacterIndex === null){
+					alert("No character selected.");
+					return;
+				}
+				const character = characters[currentCharacterIndex];
+				const classes = character.classes;
+				if(!classes || classes.length === 0){
+					alert("This character has no classes.");
+					return;
+				}
+				const classListText = classes
+					.map((c, i) => `${i + 1}. ${c.className} (${c.classLevel})`)
+					.join("\n");
+				const choice = prompt("Enter the number of the class to change:\n\n" + classListText);
+				if(choice === null) return;
+				const index = parseInt(choice) - 1;
+				if(isNaN(index) || index < 0 || index >= classes.length){
+					alert("Invalid selection.");
+					return;
+				}
+				const newLevel = prompt(
+					`Enter new level for ${classes[index].className}:`
+				);
+				if(newLevel === null) return;
+				const parsedLevel = parseInt(newLevel);
 
-		function createCharacterFile(){
-			saveCharacterAsFile();
-			alert('Character successfully updated and ready to view');
-		}
-
-		function saveCharacterAsFile() {
-
-			if (currentCharacterIndex === null) {
-				alert("No character selected.");
-				return;
+				if(isNaN(parsedLevel) || parsedLevel < 1 || parsedLevel > 20){
+					alert("Please enter a valid level (1–20).");
+					return;
+				}
+				const newTotalClassLevels = classes.reduce((sum, c, i) => sum + (i === index ? parsedLevel : c.classLevel), 0);
+				if(newTotalClassLevels > character.totalLevel){
+					alert("Class levels cannot exceed total character level (" + character.totalLevel + ").");
+					return;
+				}
+				classes[index].classLevel = parsedLevel;
+				localStorage.setItem('characters', JSON.stringify(characters));
+				alert(classes[index].className + " updated to level " + parsedLevel);
+				updateSelectedCharacter();
 			}
-			const character = characters[currentCharacterIndex];
-			if (!character) {
-				alert("Character not found.");
-				return;
-			}
-			const jsonString = JSON.stringify(character, null, 4);
-			const blob = new Blob([jsonString], {
-				type: "application/json"
-			});
 
-			const url = URL.createObjectURL(blob);
-			const link = document.createElement("a");
-			link.href = url;
-			const filename = character.name
-				? `${character.name.replace(/\s+/g, "_")}.json`
-				: "character.json";
-			link.download = filename;
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-			URL.revokeObjectURL(url);
-		}
-
-		function deleteSelectedCharacter() {
-			if (currentCharacterIndex === null) {
-				alert("No character selected.");
-				return;
+			function checkAction(){
+				if(document.getElementById('actionName').value.trim() == ""){
+					alert('Make sure your action has a name');
+					return false;
+				}
+				if(document.getElementById('actionDescription').value.trim() == ""){
+					alert('Make sure your action has a description');
+					return false;
+				}
+				if(document.getElementById('actionResources').value.trim() == ""){
+					alert('Make sure your action has a resource or type NA');
+					return false;
+				}
+				return true;
 			}
-			const characterName = characters[currentCharacterIndex].name || "this character";
-			const confirmDelete = confirm(`Are you sure you want to delete ${characterName}?`);
-			if (!confirmDelete) return;
-			characters.splice(currentCharacterIndex, 1);
-			localStorage.setItem("characters", JSON.stringify(characters));
-			currentCharacterIndex = null;
+
+			function addAction(){
+				if(checkAction()){
+					const action = {
+						actionName: document.getElementById('actionName').value.trim(),
+						actionDescription: document.getElementById('actionDescription').value.trim(),
+						actionResource: document.getElementById('actionResources').value.trim()
+					};
+					characters[currentCharacterIndex].actions.push(action);
+					localStorage.setItem('characters', JSON.stringify(characters));
+					alert("The " + action.actionName + " action has been added to your character");
+					updateSelectedCharacter();
+				}
+			}
+
+			function removeAction(){
+				if(currentCharacterIndex === null){
+					alert("No character selected.");
+					return;
+				}
+				const actions = characters[currentCharacterIndex].actions;
+				if(actions.length === 0){
+					alert("This character has no actions.");
+					return;
+				}
+				const actionListText = actions
+					.map((a, i) => `${i + 1}. ${a.actionName}`)
+					.join("\n");
+				const choice = prompt(
+					"Enter the number of the action to remove:\n\n" + actionListText
+				);
+				if(choice === null) return;
+				const index = parseInt(choice) - 1;
+				if(isNaN(index) || index < 0 || index >= actions.length){
+					alert("Invalid selection.");
+					return;
+				}
+				const removed = actions.splice(index, 1);
+				localStorage.setItem('characters', JSON.stringify(characters));
+				alert(removed[0].actionName + " removed.");
+				updateSelectedCharacter();
+			}
+
+			function checkBonusAction(){
+				if(document.getElementById('bonusActionName').value.trim() == ""){
+					alert('Make sure your bonus action has a name');
+					return false;
+				}
+				if(document.getElementById('bonusActionDescription').value.trim() == ""){
+					alert('Make sure your bonus action has a description');
+					return false;
+				}
+				if(document.getElementById('bonusActionResources').value.trim() == ""){
+					alert('Make sure your bonus action has a resource or type NA');
+					return false;
+				}
+				return true;
+			}
+
+			function addBonusAction(){
+				if(checkBonusAction()){
+					const bonusAction = {
+						bonusActionName: document.getElementById('bonusActionName').value.trim(),
+						bonusActionDescription: document.getElementById('bonusActionDescription').value.trim(),
+						bonusActionResource: document.getElementById('bonusActionResources').value.trim()
+					};
+					characters[currentCharacterIndex].bonusActions.push(bonusAction);
+					localStorage.setItem('characters', JSON.stringify(characters));
+					alert("The " + bonusAction.bonusActionName + " bonus action has been added to your character");
+					updateSelectedCharacter();
+				}
+			}
+
+			function removeBonusAction(){
+				if(currentCharacterIndex === null){
+					alert("No character selected.");
+					return;
+				}
+				const bonusActions = characters[currentCharacterIndex].bonusActions;
+				if(bonusActions.length === 0){
+					alert("This character has no bonus actions.");
+					return;
+				}
+				const bonusActionListText = bonusActions
+					.map((a, i) => `${i + 1}. ${a.bonusActionName}`)
+					.join("\n");
+				const choice = prompt(
+					"Enter the number of the bonus action to remove:\n\n" + bonusActionListText
+				);
+				if(choice === null) return;
+				const index = parseInt(choice) - 1;
+				if(isNaN(index) || index < 0 || index >= bonusActions.length){
+					alert("Invalid selection.");
+					return;
+				}
+				const removed = bonusActions.splice(index, 1);
+				localStorage.setItem('characters', JSON.stringify(characters));
+				alert(removed[0].bonusActionName + " removed.");
+				updateSelectedCharacter();
+			}
+
+			function addReaction(){
+				if(checkReaction()){
+					const reaction = {
+						reactionName: document.getElementById('reactionName').value.trim(),
+						reactionDescription: document.getElementById('reactionDescription').value.trim(),
+						reactionResources: document.getElementById('reactionResources').value.trim()
+					};
+					characters[currentCharacterIndex].reactions.push(reaction);
+					localStorage.setItem('characters', JSON.stringify(characters));
+					alert("The " + reaction.reactionName + " reaction has been added to your character");
+					updateSelectedCharacter();
+				}
+			}
+
+			function removeReaction(){
+				if(currentCharacterIndex === null){
+					alert("No character selected.");
+					return;
+				}
+				const reactions = characters[currentCharacterIndex].reactions;
+				if(reactions.length === 0){
+					alert("This character has no reactions.");
+					return;
+				}
+				const reactionListText = reactions
+					.map((a, i) => `${i + 1}. ${a.reactionName}`)
+					.join("\n");
+				const choice = prompt(
+					"Enter the number of the reaction to remove:\n\n" + reactionListText
+				);
+				if(choice === null) return;
+				const index = parseInt(choice) - 1;
+				if(isNaN(index) || index < 0 || index >= reactions.length){
+					alert("Invalid selection.");
+					return;
+				}
+				const removed = reactions.splice(index, 1);
+				localStorage.setItem('characters', JSON.stringify(characters));
+				alert(removed[0].reactionName + " removed.");
+				updateSelectedCharacter();
+			}
+
+			function checkReaction(){
+				if(document.getElementById('reactionName').value.trim() == ""){
+					alert('Make sure your reaction has a name');
+					return false;
+				}
+				if(document.getElementById('reactionDescription').value.trim() == ""){
+					alert('Make sure your reaction has a description');
+					return false;
+				}
+				if(document.getElementById('reactionResources').value.trim() == ""){
+					alert('Make sure your reaction has a resource or type NA');
+					return false;
+				}
+				return true;
+			}
+
+			function addClassFeature(){
+				const name = document.getElementById('classFeatureName').value.trim();
+				const description = document.getElementById('classFeatureDescription').value.trim();
+				if(name != '' && description != ''){
+					const feature = {
+						featureName: name,
+						featureDescription: description
+					}
+					characters[currentCharacterIndex].classActions.push(feature);
+					localStorage.setItem('characters', JSON.stringify(characters));
+					alert("The " + feature.featureName + " class feature has been added to your character");
+					updateSelectedCharacter();
+				}
+			}
+
+			function removeClassFeature(){
+				if(currentCharacterIndex === null){
+					alert("No character selected.");
+					return;
+				}
+				const features = characters[currentCharacterIndex].classActions;
+				if(features.length === 0){
+					alert("This character has no class features.");
+					return;
+				}
+				const featuresListText = features
+					.map((a, i) => `${i + 1}. ${a.featureName}`)
+					.join("\n");
+				const choice = prompt(
+					"Enter the number of the features to remove:\n\n" + featuresListText
+				);
+				if(choice === null) return;
+				const index = parseInt(choice) - 1;
+				if(isNaN(index) || index < 0 || index >= features.length){
+					alert("Invalid selection.");
+					return;
+				}
+				const removed = features.splice(index, 1);
+				localStorage.setItem('characters', JSON.stringify(characters));
+				alert(removed[0].featureName + " removed.");
+				updateSelectedCharacter();
+			}
+
+			function addResource(){
+				const name = document.getElementById('resourceName').value.trim();
+				if(name != '' ){
+					const resource = {
+						resourceName: name,
+						resourceAmount: parseInt(document.getElementById('resourceAmount').value)
+					}
+					characters[currentCharacterIndex].otherResources.push(resource);
+					localStorage.setItem('characters', JSON.stringify(characters));
+					alert("The " + otherResources.resourceName + " resource has been added to your character");
+					updateSelectedCharacter();
+				}
+			}
+			
+			function removeResource(){
+				if(currentCharacterIndex === null){
+					alert("No character selected.");
+					return;
+				}
+				const resources = characters[currentCharacterIndex].otherResources;
+				if(resources.length === 0){
+					alert("This character has no resources.");
+					return;
+				}
+				const resourcesListText = resources
+					.map((a, i) => `${i + 1}. ${a.resourceName}`)
+					.join("\n");
+				const choice = prompt(
+					"Enter the number of the resource to remove:\n\n" + resourcesListText
+				);
+				if(choice === null) return;
+				const index = parseInt(choice) - 1;
+				if(isNaN(index) || index < 0 || index >= resources.length){
+					alert("Invalid selection.");
+					return;
+				}
+				const removed = resources.splice(index, 1);
+				localStorage.setItem('characters', JSON.stringify(characters));
+				alert(removed[0].resourceName + " removed.");
+				updateSelectedCharacter();
+			}
+
+			function updateResourceAmount(){
+				if(currentCharacterIndex === null){
+					alert("No character selected.");
+					return;
+				}
+				const resources = characters[currentCharacterIndex].otherResources;
+				if(resources.length === 0){
+					alert("This character has no resources.");
+					return;
+				}
+				const resourcesListText = resources
+					.map((a, i) => `${i + 1}. ${a.resourceName} (${a.resourceAmount})`)
+					.join("\n");
+				const choice = prompt(
+					"Enter the number of the resource to change:\n\n" + resourcesListText
+				);
+				if(choice === null) return;
+				const index = parseInt(choice) - 1;
+				if(isNaN(index) || index < 0 || index >= resources.length){
+					alert("Invalid selection.");
+					return;
+				}
+				const newAmount = prompt(`Enter new amount for ${resources[index].resourceName}:`);
+				if(newAmount === null) return;
+				const parsedAmount = parseInt(newAmount);
+				if(isNaN(parsedAmount) || parsedAmount < 0){
+					alert("Please enter a valid number.");
+					return;
+				}
+				resources[index].resourceAmount = parsedAmount;
+				localStorage.setItem('characters', JSON.stringify(characters));
+				alert(resources[index].resourceName + " updated to " + parsedAmount);
+				updateSelectedCharacter();
+			}
+
+			function createCharacterFile(){
+				saveCharacterAsFile();
+				alert('Character successfully updated and ready to view');
+			}
+
+			function saveCharacterAsFile() {
+
+				if (currentCharacterIndex === null) {
+					alert("No character selected.");
+					return;
+				}
+				const character = characters[currentCharacterIndex];
+				if (!character) {
+					alert("Character not found.");
+					return;
+				}
+				const jsonString = JSON.stringify(character, null, 4);
+				const blob = new Blob([jsonString], {
+					type: "application/json"
+				});
+
+				const url = URL.createObjectURL(blob);
+				const link = document.createElement("a");
+				link.href = url;
+				const filename = character.name
+					? `${character.name.replace(/\s+/g, "_")}.json`
+					: "character.json";
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				URL.revokeObjectURL(url);
+			}
+
+			function deleteSelectedCharacter() {
+				if (currentCharacterIndex === null) {
+					alert("No character selected.");
+					return;
+				}
+				const characterName = characters[currentCharacterIndex].name || "this character";
+				const confirmDelete = confirm(`Are you sure you want to delete ${characterName}?`);
+				if (!confirmDelete) return;
+				characters.splice(currentCharacterIndex, 1);
+				localStorage.setItem("characters", JSON.stringify(characters));
+				currentCharacterIndex = null;
+				loadCharacterList();
+				clearCharacterUI();
+				alert(`${characterName} deleted.`);
+			}
+
+			function clearCharacterUI(){
+				const detail = document.getElementById("characterDetails");
+				detail.innerHTML = `
+					<h2>No Character Selected</h2>
+					<p>Please select a character from the dropdown or insert a character JSON file</p>
+				`;
+			}
+
+			function backToHome(){
+				window.location.href = "index.html";
+			}
+
+			function createCharacter(){
+				window.location.href = "creationSenior.html";
+			}
+
+			function backToView(){
+				window.location.href = "viewingSenior.html";
+			}
+
+			function checkButtonFunctions(){
+				document.querySelectorAll("button[onclick]").forEach(btn => {
+					const fn = btn.getAttribute("onclick").replace("()", "");
+					if(typeof window[fn] !== "function"){
+						console.warn(`Missing function: ${fn}`);
+					}
+				});
+			}
+
 			loadCharacterList();
-			clearCharacterUI();
-			alert(`${characterName} deleted.`);
-		}
-
-		function clearCharacterUI(){
-			const detail = document.getElementById("characterDetails");
-			detail.innerHTML = `
-				<h2>No Character Selected</h2>
-				<p>Please select a character from the dropdown or insert a character JSON file</p>
-			`;
-		}
-
-        function backToHome(){
-			window.location.href = "index.html";
-		}
-
-		function createCharacter(){
-			window.location.href = "creationSenior.html";
-		}
-
-		function backToView(){
-			window.location.href = "viewingSenior.html";
-		}
-
-		function checkButtonFunctions(){
-			document.querySelectorAll("button[onclick]").forEach(btn => {
-				const fn = btn.getAttribute("onclick").replace("()", "");
-				if(typeof window[fn] !== "function"){
-					console.warn(`Missing function: ${fn}`);
-				}
-			});
-		}
-
-		loadCharacterList();
-		checkButtonFunctions()
-	</script>
-</body>
+			checkButtonFunctions()
+		</script>
+	</body>
 </html>

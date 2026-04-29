@@ -1,540 +1,539 @@
 <!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="CSS/base.css">
-<link rel="stylesheet" type="text/css" href="CSS/components.css">
-<link rel="stylesheet" type="text/css" href="CSS/stylesForCreation.css">
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creation</title>
-    
-</head>
-
-<body>
-	<div class = "container">
-		<p>Create Your Character</p>
-		<button onclick = "backToHome()">Back To Homepage</button>
-		<button onclick = "viewCharacter()">View Creation</button><br>
-		<button onclick = "createCharacter()">Create Character</button>
-		<button onclick = "createCharacterFile()">Create Character File</button><br>
-	</div>
-	<div id = "creationContainer">
-	</div>
-	<script>
-		let classCount = 1;
-		let resourceCount = 0;
-		let featureCount = 0;
-		let actionsList = [];
-		let bonusActionsList = [];
-		let reactionsList = [];
-		let classActionsList = [];
-		let resourceList = [];
-
-		function viewCharacter(){
-			window.location.href = "viewingSenior.html";
-		}
-
-		function backToHome(){
-			window.location.href = "index.html";
-		}
-
-		function loadCreation(){
-			const container = document.getElementById('creationContainer');
-			container.innerHTML = `
-				<div class = "input-group">
-					<label for="name">Name:</label>
-        				<textarea id="name" placeholder="Enter name here..."></textarea>
-				</div>
-
-				<div class = "input-group">
-					<label for="classCharacter">Class:</label>
-        				<textarea id="classCharacter" placeholder="Enter your class name here"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for="subClassCharacter">Sub Class:</label>
-        				<textarea id="subClassCharacter" placeholder="Enter your subclass name here"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for="characterLevel">Character Level:</label>
-        				<select id="characterLevel">
-                        			${Array.from({length: 20}, (_, i) => 
-                            			`<option value="${i + 1}">${i + 1}</option>`
-                        			).join('')}
-                    			</select>
-				</div>
-				<div class = "input-group">
-					<label for="level">Class Level:</label>
-        				<select id="level">
-                        			${Array.from({length: 20}, (_, i) => 
-                            			`<option value="${i + 1}">${i + 1}</option>`
-                        			).join('')}
-                    			</select>
-				</div>
-				<button onclick = "addClass()">Add Another class</button>
-				<button onclick = "removeClass()">Remove Previous class</button><br>
-				<button onclick = "addResourceBlock()">Add Addition Resource</button>
-				<button onclick = "removeResourceBlock()">Remove Addition Resource</button><br>
-				<button onclick = "addClassFeatureBlock()">Add Class Feature</button>
-				<button onclick = "removeClassFeatureBlock()">Remove Class Feature</button>
-			`;
-			addActionBlock();
-			addBonusActionBlock();
-			addReactionBlock();
-		}
-
-		function addActionBlock(){
-			const container = document.getElementById('creationContainer');
-			const newBlock = document.createElement('div');
-			newBlock.classList.add('actionBlock');
-			newBlock.innerHTML = `
-				<div class = "input-group">
-					<label for = "actionName">Action Name: </label>
-						<textarea id="actionName" placeholder="Enter the name of your action"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for = "actionDescription">Action Description: </label>
-						<textarea id="actionDescription" placeholder="Give a brief description of the range, damage type, and damage roll and/or what your action does"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for = "actionResources">Action Resources: </label>
-						<textarea id="actionResources" placeholder="List what resource your action uses, i.e spell slot, action+bonus action, ki point, etc"></textarea>
-				</div>
-				<button onclick = "addAction()">Add to Action List</button>
-				<button onclick = "viewActions()">View Actions</button>
-			`;
-			container.appendChild(newBlock);
-		}
-
-		function checkAction(){
-			if(document.getElementById('actionName').value.trim() == ""){
-				alert('Make sure your action has a name');
-				return false;
-			}
-			if(document.getElementById('actionDescription').value.trim() == ""){
-				alert('Make sure your action has a description');
-				return false;
-			}
-			if(document.getElementById('actionResources').value.trim() == ""){
-				alert('Make sure your action has a resource or type NA');
-				return false;
-			}
-			return true;
-		}
-		function addAction(){
-			if(checkAction()){
-				const action = {
-					actionName: document.getElementById('actionName').value.trim(),
-					actionDescription: document.getElementById('actionDescription').value.trim(),
-					actionResource: document.getElementById('actionResources').value.trim()
-				};
-				actionsList.push(action);
-				alert("The " + actionsList[actionsList.length - 1].actionName + " action has been added to your character");
-			}
-		}
-
-		function viewActions(){
-			alert("Your Actions are: " + actionsList.map(r => r.actionName).join(", "));
-			return;
-
-		}
-
-		function addBonusActionBlock(){
-			const container = document.getElementById('creationContainer');
-			const newBlock = document.createElement('div');
-			newBlock.classList.add('bonusActionBlock');
-			newBlock.innerHTML = `
-				<div class = "input-group">
-					<label for = "bonusActionName">Bonus Action Name: </label>
-						<textarea id="bonusActionName" placeholder="Enter the name of your bonus action"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for = "bonusActionDescription">Bonus Action Description: </label>
-						<textarea id="bonusActionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your bonus action does."></textarea>
-				</div>
-				<div class = "input-group">
-					<label for = "BonusActionResources">Bonus Action Resources: </label>
-						<textarea id="bonusActionResources" placeholder="List what resource your reaction uses, i.e spell slot and spell level, ki point, etc"></textarea>
-				</div>
-				<button onclick = "addBonusAction()">Add to Bonus Action List</button>
-				<button onclick = "viewBonusActions()">View Bonus Actions</button>
-			`;
-			container.appendChild(newBlock);
-		}
-
-		function checkBonusAction(){
-			if(document.getElementById('bonusActionName').value.trim() == ""){
-				alert('Make sure your bonus action has a name');
-				return false;
-			}
-			if(document.getElementById('bonusActionDescription').value.trim() == ""){
-				alert('Make sure your bonus action has a description');
-				return false;
-			}
-			if(document.getElementById('bonusActionResources').value.trim() == ""){
-				alert('Make sure your bonus action has a resource or type NA');
-				return false;
-			}
-			return true;
-		}
-		function addBonusAction(){
-			if(checkBonusAction()){
-				const bonusAction = {
-					bonusActionName: document.getElementById('bonusActionName').value.trim(),
-					bonusActionDescription: document.getElementById('bonusActionDescription').value.trim(),
-					bonusActionResource: document.getElementById('bonusActionResources').value.trim()
-				};
-				bonusActionsList.push(bonusAction);
-				alert("The " + bonusActionsList[bonusActionsList.length - 1].bonusActionName + " bonus action has been added to your character");
-			}
-		}
-
-		function viewBonusActions(){
-			alert("Your Bonus Actions are: " + bonusActionsList.map(r => r.bonusActionName).join(", "));
-			return;
-
-		}
-
-		function addReactionBlock(){
-			const container = document.getElementById('creationContainer');
-			const newBlock = document.createElement('div');
-			newBlock.classList.add('reactionBlock');
-			newBlock.innerHTML = `
-				<div class = "input-group">
-					<label for = "reactionName">Reaction Name: </label>
-						<textarea id="reactionName" placeholder="Enter the name of your reaction"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for = "reactionDescription">Reaction Description: </label>
-						<textarea id="reactionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your reaction does"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for = "reactionResources">Reaction Resources: </label>
-						<textarea id="reactionResources" placeholder="List what resource your reaction uses, i.e spell slot, ki point, etc"></textarea>
-				</div>
-				<button onclick = "addReaction()">Add to Reaction List</button>
-				<button onclick = "viewReactions()">View Reactions</button>
-			`;
-			container.appendChild(newBlock);
-		}
-
-		function addReaction(){
-			if(checkReaction()){
-				const reaction = {
-					reactionName: document.getElementById('reactionName').value.trim(),
-					reactionDescription: document.getElementById('reactionDescription').value.trim(),
-					reactionResources: document.getElementById('reactionResources').value.trim()
-				};
-				reactionsList.push(reaction);
-				alert("The " + reactionsList[reactionsList.length - 1].reactionName + " reaction has been added to your character");
-			}
-		}
-
-		function checkReaction(){
-			if(document.getElementById('reactionName').value.trim() == ""){
-				alert('Make sure your reaction has a name');
-				return false;
-			}
-			if(document.getElementById('reactionDescription').value.trim() == ""){
-				alert('Make sure your reaction has a description');
-				return false;
-			}
-			if(document.getElementById('reactionResources').value.trim() == ""){
-				alert('Make sure your reaction has a resource or type NA');
-				return false;
-			}
-			return true;
-		}
-
-		function viewReactions(){
-			alert("Your reactions are: " + reactionsList.map(r => r.reactionName).join(", "));
-			return;
-
-		}
-
-		function addResourceBlock(){
-			const container = document.getElementById('creationContainer');
-			const newBlock = document.createElement('div');
-			if(resourceCount < 1){
-				newBlock.classList.add('resourceBlock');
-				newBlock.innerHTML = `
-					<div class = "input-group">
-						<label for = "resourceName">Resource Name: </label>
-							<textarea id="resourceName" placeholder="Enter the name of your resource"></textarea>
-					</div>
-					<div class = "input-group">
-						<label for="resourceAmount">Resource Amount:</label>
-        					<select id="resourceAmount">
-            	            			${Array.from({length: 20}, (_, i) => 
-            	      	    				`<option value="${i + 1}">${i + 1}</option>`
-            	            				).join('')}
-            	        			</select>
-					</div>
-					<button onclick = "addToResourceList()">Add to Resource List</button>
-					<button onclick = "viewResourceList()"> View Resources</button>
-				`;
-				container.appendChild(newBlock);
-				resourceCount += 1;
-			}
-		}
-
-		function removeResourceBlock(){  
-			if(resourceCount == 0){
-				alert('No additional resources to remove at this time');
-				return;
-			}
-
-			const container = document.getElementById('creationContainer');
-			const blocks = container.getElementsByClassName('resourceBlock');
-
-			
-			container.removeChild(blocks[blocks.length - 1]);
-			resourceCount -= 1;
-		}
-
-		function addToResourceList(){
-			const name = document.getElementById('resourceName').value.trim();
-			if(name != '' ){
-				const resource = {
-					resourceName: name,
-					resourceAmount: parseInt(document.getElementById('resourceAmount').value)
-				}
-				resourceList.push(resource);
-				alert("Added " + name + " to your resource list")
-			}
-		}
-
-		function viewResourceList(){
-			alert("Your resources are: " + resourceList.map(r => r.resourceName).join(", "));
-		}
-
-		function addClassFeatureBlock(){
-			const container = document.getElementById('creationContainer');
-			const newBlock = document.createElement('div');
-			if(featureCount < 1){
-				newBlock.classList.add('classFeatureBlock');
-				newBlock.innerHTML = `
-					<div class = "input-group">
-						<label for = "classFeatureName">Class Feature Name: </label>
-							<textarea id="classFeatureName" placeholder="Enter the name of your class feature"></textarea>
-					</div>
-						<div class = "input-group">
-						<label for = "classFeatureDescription">Class Feature Description: </label>
-							<textarea id="classFeatureDescription" placeholder="Give a brief description of your class feature."></textarea>
-					</div>
-					<button onclick = "addToClassFeatureList()">Add to Class Feature List</button>
-					<button onclick = "viewClassFeatureList()"> View Class Features</button>
-				`;
-				container.appendChild(newBlock);
-				featureCount += 1;
-			}
-		}
-
-		function removeClassFeatureBlock(){  
-			if(featureCount == 0){
-				alert('No class features to remove at this time');
-				return;
-			}
-
-			const container = document.getElementById('creationContainer');
-			const blocks = container.getElementsByClassName('classFeatureBlock');
-
-			
-			container.removeChild(blocks[blocks.length - 1]);
-			featureCount -= 1;
-		}
-
-		function addToClassFeatureList(){
-			const name = document.getElementById('classFeatureName').value.trim();
-			const description = document.getElementById('classFeatureDescription').value.trim();
-			if(name != '' && description != ''){
-				const feature = {
-					featureName: name,
-					featureDescription: description
-				}
-				classActionsList.push(feature);
-				alert("Added " + name + " to your class features list")
-			}
-		}
-
-		function viewClassFeatureList(){
-			alert("Your class feature are: " + classActionsList.map(r => r.featureName).join(", "));
-		}
-
-
-		function addClass(){
-			if(classCount >= 2){
-				alert('No more than 2 classes per character are supported at this time');
-				return;
-			}
-
-			const totalLevel = document.getElementById('characterLevel').value;
-			const container = document.getElementById('creationContainer');
-			const newBlock = document.createElement('div');
-			newBlock.classList.add('class-block');
-
-			newBlock.innerHTML = `
-				<div class = "input-group">
-					<label for="newClassCharacter">Class:</label>
-        				<textarea id="newClassCharacter" placeholder="Enter your class name here"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for="newSubClassCharacter">Sub Class:</label>
-        				<textarea id="newSubClassCharacter" placeholder="Enter your subclass name here"></textarea>
-				</div>
-				<div class = "input-group">
-					<label for="newLevel">Class Level:</label>
-        				<select id="newLevel">
-                        			${Array.from({length: 20}, (_, i) => 
-                  	    				`<option value="${i + 1}">${i + 1}</option>`
-                        				).join('')}
-                    			</select>
-				</div>
-			`;
-			container.appendChild(newBlock);
-			classCount += 1;
-		}
-
-		function removeClass(){  
-			if (classCount <= 1){ 
-				alert('You have to have at least one class');
-				return;
-			}
-			
-			const container = document.getElementById('creationContainer');
-			const blocks = container.getElementsByClassName('class-block');
-			
-			container.removeChild(blocks[blocks.length - 1]);
-			classCount -= 1;
-		}
-
-		function saveCharacter(){
-			const character = {
-				name: document.getElementById('name').value.trim(),
-				totalLevel: parseInt(document.getElementById('characterLevel').value),
-				classes: [],
-				actions: actionsList,
-				bonusActions: bonusActionsList,
-				reactions: reactionsList,
-				otherResources: resourceList,
-				classActions: classActionsList
-			};
-			const primaryClass = {
-				className: document.getElementById('classCharacter').value.trim(),
-				subClassName: document.getElementById('subClassCharacter').value.trim(),
-				classLevel: parseInt(document.getElementById('level').value)
-			};
-			character.classes.push(primaryClass);
-			if(classCount == 2){
-				const secondClass = {
-					className: document.getElementById('newClassCharacter').value.trim(),
-					subClassName: document.getElementById('newSubClassCharacter').value.trim(),
-					classLevel: parseInt(document.getElementById('newLevel').value)
-				};
-				character.classes.push(secondClass);
-			}
-			let characters = JSON.parse(localStorage.getItem("characters")) || [];
-			characters.push(character);
-			localStorage.setItem("characters", JSON.stringify(characters));
-		}
+	<link rel="stylesheet" type="text/css" href="CSS/base.css">
+	<link rel="stylesheet" type="text/css" href="CSS/components.css">
+	<link rel="stylesheet" type="text/css" href="CSS/stylesForCreation.css">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Creation</title>
 		
-		function saveCharacterAsFile(){
-			const character = {
-				name: document.getElementById('name').value.trim(),
-				totalLevel: parseInt(document.getElementById('characterLevel').value),
-				classes: [],
-				actions: actionsList,
-				bonusActions: bonusActionsList,
-				reactions: reactionsList,
-				otherResources: resourceList,
-				classActions: classActionsList
-			};
-			const primaryClass = {
-				className: document.getElementById('classCharacter').value.trim(),
-				subClassName: document.getElementById('subClassCharacter').value.trim(),
-				classLevel: parseInt(document.getElementById('level').value)
-			};
-			character.classes.push(primaryClass);
-			if(classCount == 2){
-				const secondClass = {
-					className: document.getElementById('newClassCharacter').value.trim(),
-					subClassName: document.getElementById('newSubClassCharacter').value.trim(),
-					classLevel: parseInt(document.getElementById('newLevel').value)
-				};
-				character.classes.push(secondClass);
-			};
-			const jsonString = JSON.stringify(character, null, 4);
-			const blob = new Blob([jsonString], { type: "application/json" });
-			const url = URL.createObjectURL(blob);
+	</head>
 
-			const link = document.createElement("a");
-			link.href = url;
+	<body>
+		<div class = "container">
+			<p>Create Your Character</p>
+			<button onclick = "backToHome()">Back To Homepage</button>
+			<button onclick = "viewCharacter()">View Creation</button><br>
+			<button onclick = "createCharacter()">Create Character</button>
+			<button onclick = "createCharacterFile()">Create Character File</button><br>
+		</div>
+		<div id = "creationContainer">
+		</div>
+		<script>
+			let classCount = 1;
+			let resourceCount = 0;
+			let featureCount = 0;
+			let actionsList = [];
+			let bonusActionsList = [];
+			let reactionsList = [];
+			let classActionsList = [];
+			let resourceList = [];
 
-			const filename = character.name
-					? `${character.name.replace(/\s+/g, "_")}.json`
-					: "character.json";
-
-			link.download = filename;
-			link.click();
-
-			URL.revokeObjectURL(url);
-		}
-
-		function createCharacterFile(){
-			if(checkValid()){
-				saveCharacterAsFile();
-				alert('Character successfully created and ready to view');
+			function viewCharacter(){
+				window.location.href = "viewingSenior.html";
 			}
-		}
 
-		function createCharacter(){
-			if(checkValid()){
-				saveCharacter();
-				alert('Character successfully created and ready to view');
+			function backToHome(){
+				window.location.href = "index.html";
 			}
-		}
 
-		function checkValid(){
-			const characterName = document.getElementById('name').value.trim();
-			const characterClass = document.getElementById('classCharacter').value.trim();
-			const classLevel = parseInt(document.getElementById('level').value);
-			const totalLevel = parseInt(document.getElementById('characterLevel').value);
-			if(characterName == ''){
-				alert('You must name your character');
-				return false;
-			}else{
-				if(classCount == 2){
-					let classTwoLevel = parseInt(document.getElementById('newLevel').value);
-					let classTwoName = document.getElementById('newClassCharacter').value.trim();
-					if(classLevel + classTwoLevel != totalLevel){
-						alert('The levels of your classes must add together to match your total level');
-						return false;
-					}
-					if(classTwoName == '' || characterClass == ''){
-						alert('Make sure the names of both classes are filled');
-						return false;
-					}
-				}else if (classCount == 1){
-					if(classLevel != totalLevel){
-						alert('Your class level and character level must match');
-						return false;
-					}
-					if(characterClass == ''){
-						alert('Your character must have a class');
-						return false;
-					}
-				}else if (classCount > 2){
-					alert('No more than 2 classes per character is supported at this time');
+			function loadCreation(){
+				const container = document.getElementById('creationContainer');
+				container.innerHTML = `
+					<div class = "input-group">
+						<label for="name">Name:</label>
+							<textarea id="name" placeholder="Enter name here..."></textarea>
+					</div>
+
+					<div class = "input-group">
+						<label for="classCharacter">Class:</label>
+							<textarea id="classCharacter" placeholder="Enter your class name here"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for="subClassCharacter">Sub Class:</label>
+							<textarea id="subClassCharacter" placeholder="Enter your subclass name here"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for="characterLevel">Character Level:</label>
+							<select id="characterLevel">
+										${Array.from({length: 20}, (_, i) => 
+											`<option value="${i + 1}">${i + 1}</option>`
+										).join('')}
+									</select>
+					</div>
+					<div class = "input-group">
+						<label for="level">Class Level:</label>
+							<select id="level">
+										${Array.from({length: 20}, (_, i) => 
+											`<option value="${i + 1}">${i + 1}</option>`
+										).join('')}
+									</select>
+					</div>
+					<button onclick = "addClass()">Add Another class</button>
+					<button onclick = "removeClass()">Remove Previous class</button><br>
+					<button onclick = "addResourceBlock()">Add Addition Resource</button>
+					<button onclick = "removeResourceBlock()">Remove Addition Resource</button><br>
+					<button onclick = "addClassFeatureBlock()">Add Class Feature</button>
+					<button onclick = "removeClassFeatureBlock()">Remove Class Feature</button>
+				`;
+				addActionBlock();
+				addBonusActionBlock();
+				addReactionBlock();
+			}
+
+			function addActionBlock(){
+				const container = document.getElementById('creationContainer');
+				const newBlock = document.createElement('div');
+				newBlock.classList.add('actionBlock');
+				newBlock.innerHTML = `
+					<div class = "input-group">
+						<label for = "actionName">Action Name: </label>
+							<textarea id="actionName" placeholder="Enter the name of your action"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for = "actionDescription">Action Description: </label>
+							<textarea id="actionDescription" placeholder="Give a brief description of the range, damage type, and damage roll and/or what your action does"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for = "actionResources">Action Resources: </label>
+							<textarea id="actionResources" placeholder="List what resource your action uses, i.e spell slot, action+bonus action, ki point, etc"></textarea>
+					</div>
+					<button onclick = "addAction()">Add to Action List</button>
+					<button onclick = "viewActions()">View Actions</button>
+				`;
+				container.appendChild(newBlock);
+			}
+
+			function checkAction(){
+				if(document.getElementById('actionName').value.trim() == ""){
+					alert('Make sure your action has a name');
 					return false;
 				}
+				if(document.getElementById('actionDescription').value.trim() == ""){
+					alert('Make sure your action has a description');
+					return false;
+				}
+				if(document.getElementById('actionResources').value.trim() == ""){
+					alert('Make sure your action has a resource or type NA');
+					return false;
+				}
+				return true;
 			}
-			if(actionsList.length ==  0 || bonusActionsList.length == 0 || reactionsList.length == 0){
-				alert("Make sure your character has saved actions, bonus actions, and reactions")
-				return false;
+			function addAction(){
+				if(checkAction()){
+					const action = {
+						actionName: document.getElementById('actionName').value.trim(),
+						actionDescription: document.getElementById('actionDescription').value.trim(),
+						actionResource: document.getElementById('actionResources').value.trim()
+					};
+					actionsList.push(action);
+					alert("The " + actionsList[actionsList.length - 1].actionName + " action has been added to your character");
+				}
 			}
-			return true;	
-		}
 
-		loadCreation();
-	</script>
-</body>
+			function viewActions(){
+				alert("Your Actions are: " + actionsList.map(r => r.actionName).join(", "));
+				return;
+
+			}
+
+			function addBonusActionBlock(){
+				const container = document.getElementById('creationContainer');
+				const newBlock = document.createElement('div');
+				newBlock.classList.add('bonusActionBlock');
+				newBlock.innerHTML = `
+					<div class = "input-group">
+						<label for = "bonusActionName">Bonus Action Name: </label>
+							<textarea id="bonusActionName" placeholder="Enter the name of your bonus action"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for = "bonusActionDescription">Bonus Action Description: </label>
+							<textarea id="bonusActionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your bonus action does."></textarea>
+					</div>
+					<div class = "input-group">
+						<label for = "BonusActionResources">Bonus Action Resources: </label>
+							<textarea id="bonusActionResources" placeholder="List what resource your reaction uses, i.e spell slot and spell level, ki point, etc"></textarea>
+					</div>
+					<button onclick = "addBonusAction()">Add to Bonus Action List</button>
+					<button onclick = "viewBonusActions()">View Bonus Actions</button>
+				`;
+				container.appendChild(newBlock);
+			}
+
+			function checkBonusAction(){
+				if(document.getElementById('bonusActionName').value.trim() == ""){
+					alert('Make sure your bonus action has a name');
+					return false;
+				}
+				if(document.getElementById('bonusActionDescription').value.trim() == ""){
+					alert('Make sure your bonus action has a description');
+					return false;
+				}
+				if(document.getElementById('bonusActionResources').value.trim() == ""){
+					alert('Make sure your bonus action has a resource or type NA');
+					return false;
+				}
+				return true;
+			}
+			function addBonusAction(){
+				if(checkBonusAction()){
+					const bonusAction = {
+						bonusActionName: document.getElementById('bonusActionName').value.trim(),
+						bonusActionDescription: document.getElementById('bonusActionDescription').value.trim(),
+						bonusActionResource: document.getElementById('bonusActionResources').value.trim()
+					};
+					bonusActionsList.push(bonusAction);
+					alert("The " + bonusActionsList[bonusActionsList.length - 1].bonusActionName + " bonus action has been added to your character");
+				}
+			}
+
+			function viewBonusActions(){
+				alert("Your Bonus Actions are: " + bonusActionsList.map(r => r.bonusActionName).join(", "));
+				return;
+
+			}
+
+			function addReactionBlock(){
+				const container = document.getElementById('creationContainer');
+				const newBlock = document.createElement('div');
+				newBlock.classList.add('reactionBlock');
+				newBlock.innerHTML = `
+					<div class = "input-group">
+						<label for = "reactionName">Reaction Name: </label>
+							<textarea id="reactionName" placeholder="Enter the name of your reaction"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for = "reactionDescription">Reaction Description: </label>
+							<textarea id="reactionDescription" placeholder="Give a brief description of the range, damage type, damage roll, and/or what your reaction does"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for = "reactionResources">Reaction Resources: </label>
+							<textarea id="reactionResources" placeholder="List what resource your reaction uses, i.e spell slot, ki point, etc"></textarea>
+					</div>
+					<button onclick = "addReaction()">Add to Reaction List</button>
+					<button onclick = "viewReactions()">View Reactions</button>
+				`;
+				container.appendChild(newBlock);
+			}
+
+			function addReaction(){
+				if(checkReaction()){
+					const reaction = {
+						reactionName: document.getElementById('reactionName').value.trim(),
+						reactionDescription: document.getElementById('reactionDescription').value.trim(),
+						reactionResources: document.getElementById('reactionResources').value.trim()
+					};
+					reactionsList.push(reaction);
+					alert("The " + reactionsList[reactionsList.length - 1].reactionName + " reaction has been added to your character");
+				}
+			}
+
+			function checkReaction(){
+				if(document.getElementById('reactionName').value.trim() == ""){
+					alert('Make sure your reaction has a name');
+					return false;
+				}
+				if(document.getElementById('reactionDescription').value.trim() == ""){
+					alert('Make sure your reaction has a description');
+					return false;
+				}
+				if(document.getElementById('reactionResources').value.trim() == ""){
+					alert('Make sure your reaction has a resource or type NA');
+					return false;
+				}
+				return true;
+			}
+
+			function viewReactions(){
+				alert("Your reactions are: " + reactionsList.map(r => r.reactionName).join(", "));
+				return;
+
+			}
+
+			function addResourceBlock(){
+				const container = document.getElementById('creationContainer');
+				const newBlock = document.createElement('div');
+				if(resourceCount < 1){
+					newBlock.classList.add('resourceBlock');
+					newBlock.innerHTML = `
+						<div class = "input-group">
+							<label for = "resourceName">Resource Name: </label>
+								<textarea id="resourceName" placeholder="Enter the name of your resource"></textarea>
+						</div>
+						<div class = "input-group">
+							<label for="resourceAmount">Resource Amount:</label>
+								<select id="resourceAmount">
+											${Array.from({length: 20}, (_, i) => 
+												`<option value="${i + 1}">${i + 1}</option>`
+												).join('')}
+										</select>
+						</div>
+						<button onclick = "addToResourceList()">Add to Resource List</button>
+						<button onclick = "viewResourceList()"> View Resources</button>
+					`;
+					container.appendChild(newBlock);
+					resourceCount += 1;
+				}
+			}
+
+			function removeResourceBlock(){  
+				if(resourceCount == 0){
+					alert('No additional resources to remove at this time');
+					return;
+				}
+
+				const container = document.getElementById('creationContainer');
+				const blocks = container.getElementsByClassName('resourceBlock');
+
+				
+				container.removeChild(blocks[blocks.length - 1]);
+				resourceCount -= 1;
+			}
+
+			function addToResourceList(){
+				const name = document.getElementById('resourceName').value.trim();
+				if(name != '' ){
+					const resource = {
+						resourceName: name,
+						resourceAmount: parseInt(document.getElementById('resourceAmount').value)
+					}
+					resourceList.push(resource);
+					alert("Added " + name + " to your resource list")
+				}
+			}
+
+			function viewResourceList(){
+				alert("Your resources are: " + resourceList.map(r => r.resourceName).join(", "));
+			}
+
+			function addClassFeatureBlock(){
+				const container = document.getElementById('creationContainer');
+				const newBlock = document.createElement('div');
+				if(featureCount < 1){
+					newBlock.classList.add('classFeatureBlock');
+					newBlock.innerHTML = `
+						<div class = "input-group">
+							<label for = "classFeatureName">Class Feature Name: </label>
+								<textarea id="classFeatureName" placeholder="Enter the name of your class feature"></textarea>
+						</div>
+							<div class = "input-group">
+							<label for = "classFeatureDescription">Class Feature Description: </label>
+								<textarea id="classFeatureDescription" placeholder="Give a brief description of your class feature."></textarea>
+						</div>
+						<button onclick = "addToClassFeatureList()">Add to Class Feature List</button>
+						<button onclick = "viewClassFeatureList()"> View Class Features</button>
+					`;
+					container.appendChild(newBlock);
+					featureCount += 1;
+				}
+			}
+
+			function removeClassFeatureBlock(){  
+				if(featureCount == 0){
+					alert('No class features to remove at this time');
+					return;
+				}
+
+				const container = document.getElementById('creationContainer');
+				const blocks = container.getElementsByClassName('classFeatureBlock');
+
+				
+				container.removeChild(blocks[blocks.length - 1]);
+				featureCount -= 1;
+			}
+
+			function addToClassFeatureList(){
+				const name = document.getElementById('classFeatureName').value.trim();
+				const description = document.getElementById('classFeatureDescription').value.trim();
+				if(name != '' && description != ''){
+					const feature = {
+						featureName: name,
+						featureDescription: description
+					}
+					classActionsList.push(feature);
+					alert("Added " + name + " to your class features list")
+				}
+			}
+
+			function viewClassFeatureList(){
+				alert("Your class feature are: " + classActionsList.map(r => r.featureName).join(", "));
+			}
+
+
+			function addClass(){
+				if(classCount >= 2){
+					alert('No more than 2 classes per character are supported at this time');
+					return;
+				}
+
+				const totalLevel = document.getElementById('characterLevel').value;
+				const container = document.getElementById('creationContainer');
+				const newBlock = document.createElement('div');
+				newBlock.classList.add('class-block');
+
+				newBlock.innerHTML = `
+					<div class = "input-group">
+						<label for="newClassCharacter">Class:</label>
+							<textarea id="newClassCharacter" placeholder="Enter your class name here"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for="newSubClassCharacter">Sub Class:</label>
+							<textarea id="newSubClassCharacter" placeholder="Enter your subclass name here"></textarea>
+					</div>
+					<div class = "input-group">
+						<label for="newLevel">Class Level:</label>
+							<select id="newLevel">
+										${Array.from({length: 20}, (_, i) => 
+											`<option value="${i + 1}">${i + 1}</option>`
+											).join('')}
+									</select>
+					</div>
+				`;
+				container.appendChild(newBlock);
+				classCount += 1;
+			}
+
+			function removeClass(){  
+				if (classCount <= 1){ 
+					alert('You have to have at least one class');
+					return;
+				}
+				
+				const container = document.getElementById('creationContainer');
+				const blocks = container.getElementsByClassName('class-block');
+				
+				container.removeChild(blocks[blocks.length - 1]);
+				classCount -= 1;
+			}
+
+			function saveCharacter(){
+				const character = {
+					name: document.getElementById('name').value.trim(),
+					totalLevel: parseInt(document.getElementById('characterLevel').value),
+					classes: [],
+					actions: actionsList,
+					bonusActions: bonusActionsList,
+					reactions: reactionsList,
+					otherResources: resourceList,
+					classActions: classActionsList
+				};
+				const primaryClass = {
+					className: document.getElementById('classCharacter').value.trim(),
+					subClassName: document.getElementById('subClassCharacter').value.trim(),
+					classLevel: parseInt(document.getElementById('level').value)
+				};
+				character.classes.push(primaryClass);
+				if(classCount == 2){
+					const secondClass = {
+						className: document.getElementById('newClassCharacter').value.trim(),
+						subClassName: document.getElementById('newSubClassCharacter').value.trim(),
+						classLevel: parseInt(document.getElementById('newLevel').value)
+					};
+					character.classes.push(secondClass);
+				}
+				let characters = JSON.parse(localStorage.getItem("characters")) || [];
+				characters.push(character);
+				localStorage.setItem("characters", JSON.stringify(characters));
+			}
+			
+			function saveCharacterAsFile(){
+				const character = {
+					name: document.getElementById('name').value.trim(),
+					totalLevel: parseInt(document.getElementById('characterLevel').value),
+					classes: [],
+					actions: actionsList,
+					bonusActions: bonusActionsList,
+					reactions: reactionsList,
+					otherResources: resourceList,
+					classActions: classActionsList
+				};
+				const primaryClass = {
+					className: document.getElementById('classCharacter').value.trim(),
+					subClassName: document.getElementById('subClassCharacter').value.trim(),
+					classLevel: parseInt(document.getElementById('level').value)
+				};
+				character.classes.push(primaryClass);
+				if(classCount == 2){
+					const secondClass = {
+						className: document.getElementById('newClassCharacter').value.trim(),
+						subClassName: document.getElementById('newSubClassCharacter').value.trim(),
+						classLevel: parseInt(document.getElementById('newLevel').value)
+					};
+					character.classes.push(secondClass);
+				};
+				const jsonString = JSON.stringify(character, null, 4);
+				const blob = new Blob([jsonString], { type: "application/json" });
+				const url = URL.createObjectURL(blob);
+
+				const link = document.createElement("a");
+				link.href = url;
+
+				const filename = character.name
+						? `${character.name.replace(/\s+/g, "_")}.json`
+						: "character.json";
+
+				link.download = filename;
+				link.click();
+
+				URL.revokeObjectURL(url);
+			}
+
+			function createCharacterFile(){
+				if(checkValid()){
+					saveCharacterAsFile();
+					alert('Character successfully created and ready to view');
+				}
+			}
+
+			function createCharacter(){
+				if(checkValid()){
+					saveCharacter();
+					alert('Character successfully created and ready to view');
+				}
+			}
+
+			function checkValid(){
+				const characterName = document.getElementById('name').value.trim();
+				const characterClass = document.getElementById('classCharacter').value.trim();
+				const classLevel = parseInt(document.getElementById('level').value);
+				const totalLevel = parseInt(document.getElementById('characterLevel').value);
+				if(characterName == ''){
+					alert('You must name your character');
+					return false;
+				}else{
+					if(classCount == 2){
+						let classTwoLevel = parseInt(document.getElementById('newLevel').value);
+						let classTwoName = document.getElementById('newClassCharacter').value.trim();
+						if(classLevel + classTwoLevel != totalLevel){
+							alert('The levels of your classes must add together to match your total level');
+							return false;
+						}
+						if(classTwoName == '' || characterClass == ''){
+							alert('Make sure the names of both classes are filled');
+							return false;
+						}
+					}else if (classCount == 1){
+						if(classLevel != totalLevel){
+							alert('Your class level and character level must match');
+							return false;
+						}
+						if(characterClass == ''){
+							alert('Your character must have a class');
+							return false;
+						}
+					}else if (classCount > 2){
+						alert('No more than 2 classes per character is supported at this time');
+						return false;
+					}
+				}
+				if(actionsList.length ==  0 || bonusActionsList.length == 0 || reactionsList.length == 0){
+					alert("Make sure your character has saved actions, bonus actions, and reactions")
+					return false;
+				}
+				return true;	
+			}
+
+			loadCreation();
+		</script>
+	</body>
 </html>

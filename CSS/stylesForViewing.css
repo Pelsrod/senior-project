@@ -1,7 +1,11 @@
-#actionSection,
-#bonusActionSection,
+#actionSection{
+  border-left: 5px solid forestgreen;
+}
+#bonusActionSection{
+  border-left: 5px solid orangered;
+}
 #reactionSection {
-  border-left: 5px solid #3b82f6;
+  border-left: 5px solid #6366f1;
 }
 
 .used {

@@ -1,492 +1,492 @@
 <!DOCTYPE html>
-<html lang="en">
-<link rel="stylesheet" type="text/css" href="CSS/base.css">
-<link rel="stylesheet" type="text/css" href="CSS/components.css">
-<link rel="stylesheet" type="text/css" href="CSS/stylesForViewing.css">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gameplay</title>
-    
-</head>
+	<html lang="en">
+	<link rel="stylesheet" type="text/css" href="CSS/base.css">
+	<link rel="stylesheet" type="text/css" href="CSS/components.css">
+	<link rel="stylesheet" type="text/css" href="CSS/stylesForViewing.css">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Gameplay</title>
+		
+	</head>
 
-<body>
-	<nav>
-		<ul>
-			<li>Viewing and Gameplay</li>
-			<li><button onclick = "backToHome()">Back To Homepage</button></li>
-			<li><button onclick = "updateCharacter()">Update a Character</button></li>
-		</ul>
-	</nav>
-	<nav class="characterNav">
-		<ul>
-			<li><button onclick = "viewSelectedCharacter()">View Selected Character</button></li>
-			<li><button onclick = "viewCharacterFile()">View Inserted JSON</button></li>
-			<li><select id = "characterDropdown"></select></li>
-			<li>Insert Exported Charcter JSON:<input class="characterToView" type="file" id="characterFile" accept = ".json"></li>
-		</ul>
-	</nav>
-	<div id = "characterDetails" class = "details"></div>
-	<script>
-		let action = 1;
-		let bonusAction = 1;
-		let reaction = 1;
-		let characters = [];
+	<body>
+		<nav>
+			<ul>
+				<li>Viewing and Gameplay</li>
+				<li><button onclick = "backToHome()">Back To Homepage</button></li>
+				<li><button onclick = "updateCharacter()">Update a Character</button></li>
+			</ul>
+		</nav>
+		<nav class="characterNav">
+			<ul>
+				<li><button onclick = "viewSelectedCharacter()">View Selected Character</button></li>
+				<li><button onclick = "viewCharacterFile()">View Inserted JSON</button></li>
+				<li><select id = "characterDropdown"></select></li>
+				<li>Insert Exported Charcter JSON:<input class="characterToView" type="file" id="characterFile" accept = ".json"></li>
+			</ul>
+		</nav>
+		<div id = "characterDetails" class = "details"></div>
+		<script>
+			let action = 1;
+			let bonusAction = 1;
+			let reaction = 1;
+			let characters = [];
 
-		function backToHome(){
-			window.location.href = "index.html";
-		}
-
-		function updateCharacter(){
-			window.location.href = "updatingSenior.html";
-		}
-
-		function loadCharacterList(){
-			const dropdown = document.getElementById("characterDropdown");
-			dropdown.innerHTML = "";
-			const stored = localStorage.getItem('characters');
-			if(!stored ){
-				alert("No characters to view at this time");
-				dropdown.innerHTML = `<option disabled selected>No characters saved at this time</option>`;
-				return;
+			function backToHome(){
+				window.location.href = "index.html";
 			}
-			characters = JSON.parse(stored);
-			if(characters.length == 0){
-				alert("No characters to view at this time");
-				dropdown.innerHTML = `<option disabled selected>No characters saved at this time</option>`;
-				return;
-			}
-			characters.sort((a, b) => a.name.localeCompare(b.name));
-			dropdown.innerHTML = `<option disabled selected>Pick a Character</option>`;
-			characters.forEach((char, index) => {
-				const opt = document.createElement("option");
-				opt.value = index;
-				opt.textContent = char.name;
-				dropdown.appendChild(opt);
-			});
-			
-		}
 
-		function viewCharacterFile(){
-			const fileInput = document.getElementById("characterFile");
-    		const file = fileInput.files[0];
-			let characterReader = new FileReader();
-			action = 1;
-			bonusAction = 1;
-			reaction = 1;
-			if(!file){
-				alert('Please insert a valid character file.');
-				return;
+			function updateCharacter(){
+				window.location.href = "updatingSenior.html";
 			}
-			characterReader.onload = function(e) {
-        		try {
-            		const character = JSON.parse(e.target.result);
 
-            		let html = `
+			function loadCharacterList(){
+				const dropdown = document.getElementById("characterDropdown");
+				dropdown.innerHTML = "";
+				const stored = localStorage.getItem('characters');
+				if(!stored ){
+					alert("No characters to view at this time");
+					dropdown.innerHTML = `<option disabled selected>No characters saved at this time</option>`;
+					return;
+				}
+				characters = JSON.parse(stored);
+				if(characters.length == 0){
+					alert("No characters to view at this time");
+					dropdown.innerHTML = `<option disabled selected>No characters saved at this time</option>`;
+					return;
+				}
+				characters.sort((a, b) => a.name.localeCompare(b.name));
+				dropdown.innerHTML = `<option disabled selected>Pick a Character</option>`;
+				characters.forEach((char, index) => {
+					const opt = document.createElement("option");
+					opt.value = index;
+					opt.textContent = char.name;
+					dropdown.appendChild(opt);
+				});
+				
+			}
+
+			function viewCharacterFile(){
+				const fileInput = document.getElementById("characterFile");
+				const file = fileInput.files[0];
+				let characterReader = new FileReader();
+				action = 1;
+				bonusAction = 1;
+				reaction = 1;
+				if(!file){
+					alert('Please insert a valid character file.');
+					return;
+				}
+				characterReader.onload = function(e) {
+					try {
+						const character = JSON.parse(e.target.result);
+
+						let html = `
+						<button onclick = "beginTurn()">Begin Turn</button>
+						<button onclick = "longRest()">Long Rest</button>
+						<button onclick = "shortRest()">Short Rest</button>
+							<h2>${character.name}</h2>
+							<p><strong>Total Level:</strong> ${character.totalLevel}</p>
+							<h3>Classes:</h3>
+							<ul>
+						`;
+						character.classes.forEach(c => {
+							html += `
+								<li>
+									${c.className}:
+									${c.subClassName} - Level ${c.classLevel}
+								</li>
+							`;
+						});
+						html += `</ul>`;
+						html += `
+							<div id = "conditions">
+								<details>
+									<summary>Conditions:</summary>
+										<label><input type="checkbox">Blinded</label><button onclick = "blind()">Explain Effect</button><br>
+										<label><input type="checkbox">Charmed</label><button onclick = "charm()">Explain Effect</button><br>
+										<label><input type="checkbox">Deafened</label><button onclick = "deaf()">Explain Effect</button><br>
+										<label><input type="checkbox">Frightened</label><button onclick = "frightened()">Explain Effect</button><br>
+										<label><input type="checkbox">Grappled</label><button onclick = "grappled()">Explain Effect</button><br>
+										<label><input type="checkbox">Incapacitated</label><button onclick = "incapacitated()">Explain Effect</button><br>
+										<label><input type="checkbox">Invisible</label><button onclick = "invisible()">Explain Effect</button><br>
+										<label><input type="checkbox">Paralyzed</label><button onclick = "paralyzed()">Explain Effect</button><br>
+										<label><input type="checkbox">Petrified</label><button onclick = "petrified()">Explain Effect</button><br>
+										<label><input type="checkbox">Poisoned</label><button onclick = "poison()">Explain Effect</button><br>
+										<label><input type="checkbox">Prone</label><button onclick = "prone()">Explain Effect</button><br>
+										<label><input type="checkbox">Restrained</label><button onclick = "restrained()">Explain Effect</button><br>
+										<label><input type="checkbox">Stunned</label><button onclick = "stunned()">Explain Effect</button><br>
+										<label><input type="checkbox">Unconscious</label><button onclick = "unconscious()">Explain Effect</button><br>
+								</details>
+								<button onclick = "explainCondition()">Explain Condition</button>
+						</div>
+						<div id = "exhaustion">
+							<label for="exhaustion">Level of Exhaustion:</label>
+								<select id="characterLevel">
+									${Array.from({length: 7}, (_, i) => 
+										`<option value="${i}">${i}</option>`
+										).join('')}
+								</select>
+								<button onclick = "explainExhaustion()">Explain Exhaustion Levels</button>
+						</div>
+						`;
+						html += `
+							<div id = "actionSection">
+							<h3>Actions:</h3>
+							<ul>
+						`;
+						character.actions.forEach(c => {
+							html += `
+								<li>
+									<span class="action-name">${c.actionName}</span>:
+									${c.actionDescription} - uses 
+									<span class="action-resource">${c.actionResource}</span>
+								</li>
+							`;
+						});
+						html += `</ul>`;
+						html += `</div>`;
+						html += `<button id="useActionBtn" onclick="useAction()">Use Action</button><br>`
+						html += `
+							<div id = "bonusActionSection">
+							<h3>Bonus Actions:</h3>
+							<ul>
+						`;
+						character.bonusActions.forEach(c => {
+							html += `
+								<li>
+									<span class="bonus-action-name">${c.bonusActionName}</span>:
+									${c.bonusActionDescription} - uses <span class="bonus-action-resource">${c.bonusActionResource}</span>
+								</li>
+							`;
+						});
+						html += `</ul>`;
+						html += `</div>`;
+						html += `<button id="useBonusActionBtn" onclick="useBonusAction()">Use Bonus Action</button><br>`
+						html += `
+							<div id = "reactionSection">
+							<h3>Reactions:</h3>
+							<ul>
+						`;
+						character.reactions.forEach(c => {
+							html += `
+								<li>
+									<span class="reaction-name">${c.reactionName}</span>: 
+									${c.reactionDescription} - uses <span class="reaction-resource">${c.reactionResources}</span>
+								</li>
+							`;
+						});
+						html += `</ul>`;
+						html += `</div>`;
+						html += `<button id="useReactionBtn" onclick="useReaction()">Use Reaction</button><br>`
+						if (character.classActions?.length) {
+							html += `
+								<h3>Class Features:</h3>
+								<ul>
+									${character.classActions
+									.map(c => `<li><span class="feature-name">${c.featureName}</span>: ${c.featureDescription}</li>`)
+									.join("")}
+								</ul>
+								`;
+						}
+						document.getElementById("characterDetails").innerHTML = html;
+
+						if (character.otherResources && character.otherResources.length !== 0) {
+							document.getElementById("characterDetails").innerHTML += `
+								<h3>Other Resources:</h3>
+								<div id="fileOtherResources"></div>
+							`;
+							renderOtherResources(character.otherResources, "fileOtherResources");
+							updateActionUI();
+						}
+						} catch (err) {
+							document.getElementById("characterDetails").textContent = "Could not read JSON character file.";
+						}
+					};
+
+				characterReader.readAsText(file);
+				checkButtonFunctions();
+			}
+
+			function viewSelectedCharacter(){
+				const dropdown = document.getElementById("characterDropdown");
+				const selectedIndex = dropdown.value;
+				const detail = document.getElementById("characterDetails");
+				action = 1;
+				bonusAction = 1;
+				reaction = 1;
+				if(selectedIndex == "" || selectedIndex == "Pick a Character"){
+					alert("Please Select a Valid Character");
+					return;
+				}
+				const selectedCharacter = characters[selectedIndex];
+				detail.innerHTML = `
 					<button onclick = "beginTurn()">Begin Turn</button>
 					<button onclick = "longRest()">Long Rest</button>
-					<button onclick = "shortRest()">Short Rest</button>
-                		<h2>${character.name}</h2>
-                		<p><strong>Total Level:</strong> ${character.totalLevel}</p>
-                		<h3>Classes:</h3>
-                		<ul>
-            		`;
-					character.classes.forEach(c => {
-                		html += `
-                    		<li>
-                       			${c.className}:
-                        		${c.subClassName} - Level ${c.classLevel}
-                    		</li>
-                		`;
-            		});
-            		html += `</ul>`;
-					html += `
-						<div id = "conditions">
-							<details>
-								<summary>Conditions:</summary>
-									<label><input type="checkbox">Blinded</label><button onclick = "blind()">Explain Effect</button><br>
-									<label><input type="checkbox">Charmed</label><button onclick = "charm()">Explain Effect</button><br>
-									<label><input type="checkbox">Deafened</label><button onclick = "deaf()">Explain Effect</button><br>
-									<label><input type="checkbox">Frightened</label><button onclick = "frightened()">Explain Effect</button><br>
-									<label><input type="checkbox">Grappled</label><button onclick = "grappled()">Explain Effect</button><br>
-									<label><input type="checkbox">Incapacitated</label><button onclick = "incapacitated()">Explain Effect</button><br>
-									<label><input type="checkbox">Invisible</label><button onclick = "invisible()">Explain Effect</button><br>
-									<label><input type="checkbox">Paralyzed</label><button onclick = "paralyzed()">Explain Effect</button><br>
-									<label><input type="checkbox">Petrified</label><button onclick = "petrified()">Explain Effect</button><br>
-									<label><input type="checkbox">Poisoned</label><button onclick = "poison()">Explain Effect</button><br>
-									<label><input type="checkbox">Prone</label><button onclick = "prone()">Explain Effect</button><br>
-									<label><input type="checkbox">Restrained</label><button onclick = "restrained()">Explain Effect</button><br>
-									<label><input type="checkbox">Stunned</label><button onclick = "stunned()">Explain Effect</button><br>
-									<label><input type="checkbox">Unconscious</label><button onclick = "unconscious()">Explain Effect</button><br>
-							</details>
-							<button onclick = "explainCondition()">Explain Condition</button>
+					<button onclick = "shortRest()">Short Rest</button><br>
+					<h2>${selectedCharacter.name}</h2>
+					<p><strong>Total Level:</strong> ${selectedCharacter.totalLevel}</p>
+					<h3>Classes:</h3>
+					<ul>
+						${selectedCharacter.classes
+						.map(c => `<li>${c.className}: ${c.subClassName} - Level ${c.classLevel}</li>`)
+						.join("")}
+					</ul>
+					<div id = "conditions">
+						<details>
+							<summary>Conditions:</summary>
+								<label><input type="checkbox">Blinded</label><button onclick = "blind()">Explain Effect</button><br>
+								<label><input type="checkbox">Charmed</label><button onclick = "charm()">Explain Effect</button><br>
+								<label><input type="checkbox">Deafened</label><button onclick = "deaf()">Explain Effect</button><br>
+								<label><input type="checkbox">Frightened</label><button onclick = "frightened()">Explain Effect</button><br>
+								<label><input type="checkbox">Grappled</label><button onclick = "grappled()">Explain Effect</button><br>
+								<label><input type="checkbox">Incapacitated</label><button onclick = "incapacitated()">Explain Effect</button><br>
+								<label><input type="checkbox">Invisible</label><button onclick = "invisible()">Explain Effect</button><br>
+								<label><input type="checkbox">Paralyzed</label><button onclick = "paralyzed()">Explain Effect</button><br>
+								<label><input type="checkbox">Petrified</label><button onclick = "petrified()">Explain Effect</button><br>
+								<label><input type="checkbox">Poisoned</label><button onclick = "poison()">Explain Effect</button><br>
+								<label><input type="checkbox">Prone</label><button onclick = "prone()">Explain Effect</button><br>
+								<label><input type="checkbox">Restrained</label><button onclick = "restrained()">Explain Effect</button><br>
+								<label><input type="checkbox">Stunned</label><button onclick = "stunned()">Explain Effect</button><br>
+								<label><input type="checkbox">Unconscious</label><button onclick = "unconscious()">Explain Effect</button><br>
+						</details>
 					</div>
 					<div id = "exhaustion">
 						<label for="exhaustion">Level of Exhaustion:</label>
-        					<select id="characterLevel">
-                        		${Array.from({length: 7}, (_, i) => 
-                            		`<option value="${i}">${i}</option>`
-                        			).join('')}
-                    		</select>
+							<select id="characterLevel">
+								${Array.from({length: 7}, (_, i) => 
+									`<option value="${i}">${i}</option>`
+									).join('')}
+							</select>
 							<button onclick = "explainExhaustion()">Explain Exhaustion Levels</button>
 					</div>
-					`;
-					html += `
-						<div id = "actionSection">
+					<div id = "actionSection">
 						<h3>Actions:</h3>
-                		<ul>
-					`;
-					character.actions.forEach(c => {
-                		html += `
-                    		<li>
-                       			 <span class="action-name">${c.actionName}</span>:
-            					${c.actionDescription} - uses 
-            					<span class="action-resource">${c.actionResource}</span>
-                    		</li>
-                		`;
-            		});
-					html += `</ul>`;
-					html += `</div>`;
-					html += `<button id="useActionBtn" onclick="useAction()">Use Action</button><br>`
-					html += `
-						<div id = "bonusActionSection">
+						<ul>
+							${selectedCharacter.actions
+							.map(c => `<li>
+								<span class="action-name">${c.actionName}</span>:
+									${c.actionDescription} - uses 
+									<span class="action-resource">${c.actionResource}</span>
+								</li>`)
+							.join("")}
+						</ul>
+					</div>
+					<button id="useActionBtn" onclick="useAction()">Use Action</button><br>
+					<div id = "bonusActionSection">
 						<h3>Bonus Actions:</h3>
-                		<ul>
-					`;
-					character.bonusActions.forEach(c => {
-                		html += `
-                    		<li>
-                       			<span class="bonus-action-name">${c.bonusActionName}</span>:
-            					${c.bonusActionDescription} - uses <span class="bonus-action-resource">${c.bonusActionResource}</span>
-                    		</li>
-                		`;
-            		});
-					html += `</ul>`;
-					html += `</div>`;
-					html += `<button id="useBonusActionBtn" onclick="useBonusAction()">Use Bonus Action</button><br>`
-					html += `
-						<div id = "reactionSection">
+						<ul>
+							${selectedCharacter.bonusActions
+							.map(c => `<li>
+									<span class="bonus-action-name">${c.bonusActionName}</span>:
+										${c.bonusActionDescription} - uses 
+										<span class="bonus-action-resource">${c.bonusActionResource}</span>
+									</li>`)
+							.join("")}
+						</ul>
+					</div>
+					<button id="useBonusActionBtn" onclick="useBonusAction()">Use Bonus Action</button><br>
+					<div id = "reactionSection">
 						<h3>Reactions:</h3>
-                		<ul>
-					`;
-					character.reactions.forEach(c => {
-                		html += `
-                    		<li>
-                       			<span class="reaction-name">${c.reactionName}</span>: 
-								${c.reactionDescription} - uses <span class="reaction-resource">${c.reactionResources}</span>
-                    		</li>
-                		`;
-            		});
-					html += `</ul>`;
-					html += `</div>`;
-					html += `<button id="useReactionBtn" onclick="useReaction()">Use Reaction</button><br>`
-					if (character.classActions?.length) {
-  						html += `
-    						<h3>Class Features:</h3>
-    						<ul>
-      							${character.classActions
-        						.map(c => `<li><span class="feature-name">${c.featureName}</span>: ${c.featureDescription}</li>`)
-        						.join("")}
-    						</ul>
-  							`;
-					}
-					document.getElementById("characterDetails").innerHTML = html;
+						<ul>
+							${selectedCharacter.reactions
+							.map(c => `<li>
+									<span class="reaction-name">${c.reactionName}</span>: 
+									${c.reactionDescription} - uses <span class="reaction-resource">${c.reactionResources}</span>
+								</li>`)
+							.join("")}
+						</ul>
+					</div>
+					<button id="useReactionBtn" onclick="useReaction()">Use Reaction</button><br>
+					<h3>Class Features:</h3>
+					<ul>
+						${selectedCharacter.classActions
+						.map(c => `<li><span class="feature-name">${c.featureName}</span>: ${c.featureDescription}</li>`)
+						.join("")}
+					</ul>
+					<h3>Resources:</h3>
+					<div id="otherResources"></div>
+				`;
+				renderOtherResources(selectedCharacter.otherResources, "otherResources");
+				updateActionUI();
+				checkButtonFunctions();
+				
+			}
 
-					if (character.otherResources && character.otherResources.length !== 0) {
-    					document.getElementById("characterDetails").innerHTML += `
-        					<h3>Other Resources:</h3>
-        					<div id="fileOtherResources"></div>
-    					`;
-    					renderOtherResources(character.otherResources, "fileOtherResources");
-						updateActionUI();
-					}
-        			} catch (err) {
-            			document.getElementById("characterDetails").textContent = "Could not read JSON character file.";
-        			}
-    			};
+			function beginTurn(){
+				action = bonusAction = reaction = 1;
+				alert("Your turn has begun and your action economy has reset")
+				updateActionUI();
+			}
 
-    		characterReader.readAsText(file);
-			checkButtonFunctions();
-		}
+			function useAction(){
+				if(action == 0){
+					alert("You have already used your action this turn");
+				}
+				action = 0;
+				updateActionUI();
+			}
 
-		function viewSelectedCharacter(){
-			const dropdown = document.getElementById("characterDropdown");
-			const selectedIndex = dropdown.value;
-			const detail = document.getElementById("characterDetails");
-			action = 1;
-			bonusAction = 1;
-			reaction = 1;
-			if(selectedIndex == "" || selectedIndex == "Pick a Character"){
-				alert("Please Select a Valid Character");
+			function shortRest(){
+				alert("You have short rested. If you have any resources or features that restore on a short rest, do so now. You recover up to half of your hit dice in hp.");
 				return;
 			}
-			const selectedCharacter = characters[selectedIndex];
-			detail.innerHTML = `
-				<button onclick = "beginTurn()">Begin Turn</button>
-				<button onclick = "longRest()">Long Rest</button>
-				<button onclick = "shortRest()">Short Rest</button><br>
-				<h2>${selectedCharacter.name}</h2>
-				<p><strong>Total Level:</strong> ${selectedCharacter.totalLevel}</p>
-				<h3>Classes:</h3>
-				<ul>
-					${selectedCharacter.classes
-					.map(c => `<li>${c.className}: ${c.subClassName} - Level ${c.classLevel}</li>`)
-					.join("")}
-				</ul>
-				<div id = "conditions">
-					<details>
-						<summary>Conditions:</summary>
-							<label><input type="checkbox">Blinded</label><button onclick = "blind()">Explain Effect</button><br>
-							<label><input type="checkbox">Charmed</label><button onclick = "charm()">Explain Effect</button><br>
-							<label><input type="checkbox">Deafened</label><button onclick = "deaf()">Explain Effect</button><br>
-							<label><input type="checkbox">Frightened</label><button onclick = "frightened()">Explain Effect</button><br>
-							<label><input type="checkbox">Grappled</label><button onclick = "grappled()">Explain Effect</button><br>
-							<label><input type="checkbox">Incapacitated</label><button onclick = "incapacitated()">Explain Effect</button><br>
-							<label><input type="checkbox">Invisible</label><button onclick = "invisible()">Explain Effect</button><br>
-							<label><input type="checkbox">Paralyzed</label><button onclick = "paralyzed()">Explain Effect</button><br>
-							<label><input type="checkbox">Petrified</label><button onclick = "petrified()">Explain Effect</button><br>
-							<label><input type="checkbox">Poisoned</label><button onclick = "poison()">Explain Effect</button><br>
-							<label><input type="checkbox">Prone</label><button onclick = "prone()">Explain Effect</button><br>
-							<label><input type="checkbox">Restrained</label><button onclick = "restrained()">Explain Effect</button><br>
-							<label><input type="checkbox">Stunned</label><button onclick = "stunned()">Explain Effect</button><br>
-							<label><input type="checkbox">Unconscious</label><button onclick = "unconscious()">Explain Effect</button><br>
-					</details>
-				</div>
-				<div id = "exhaustion">
-					<label for="exhaustion">Level of Exhaustion:</label>
-        				<select id="characterLevel">
-                        	${Array.from({length: 7}, (_, i) => 
-                            	`<option value="${i}">${i}</option>`
-                        		).join('')}
-                    	</select>
-						<button onclick = "explainExhaustion()">Explain Exhaustion Levels</button>
-				</div>
-				<div id = "actionSection">
-					<h3>Actions:</h3>
-					<ul>
-						${selectedCharacter.actions
-						.map(c => `<li>
-							<span class="action-name">${c.actionName}</span>:
-            					${c.actionDescription} - uses 
-            					<span class="action-resource">${c.actionResource}</span>
-							</li>`)
-						.join("")}
-					</ul>
-				</div>
-				<button id="useActionBtn" onclick="useAction()">Use Action</button><br>
-				<div id = "bonusActionSection">
-					<h3>Bonus Actions:</h3>
-					<ul>
-						${selectedCharacter.bonusActions
-						.map(c => `<li>
-								<span class="bonus-action-name">${c.bonusActionName}</span>:
-            						${c.bonusActionDescription} - uses 
-            						<span class="bonus-action-resource">${c.bonusActionResource}</span>
-								</li>`)
-						.join("")}
-					</ul>
-				</div>
-				<button id="useBonusActionBtn" onclick="useBonusAction()">Use Bonus Action</button><br>
-				<div id = "reactionSection">
-					<h3>Reactions:</h3>
-					<ul>
-						${selectedCharacter.reactions
-						.map(c => `<li>
-								<span class="reaction-name">${c.reactionName}</span>: 
-								${c.reactionDescription} - uses <span class="reaction-resource">${c.reactionResources}</span>
-							</li>`)
-						.join("")}
-					</ul>
-				</div>
-				<button id="useReactionBtn" onclick="useReaction()">Use Reaction</button><br>
-				<h3>Class Features:</h3>
-				<ul>
-					${selectedCharacter.classActions
-					.map(c => `<li><span class="feature-name">${c.featureName}</span>: ${c.featureDescription}</li>`)
-					.join("")}
-				</ul>
-				<h3>Resources:</h3>
-				<div id="otherResources"></div>
-			`;
-			renderOtherResources(selectedCharacter.otherResources, "otherResources");
-			updateActionUI();
+
+			function longRest(){
+				alert("You have long rested. Restore all resources and hit points.");
+				return;
+			}
+
+			function useBonusAction(){
+				if(bonusAction == 0){
+					alert("You have already used your bonus action this turn");
+				}
+				bonusAction = 0;
+				updateActionUI();
+			}
+
+			function useReaction(){
+				if(reaction == 0){
+					alert("You have already used your reaction this round");
+				}
+				reaction = 0;
+				updateActionUI();
+			}
+
+			function updateActionUI(){
+				const a = document.getElementById("actionSection");
+				const b = document.getElementById("bonusActionSection");
+				const r = document.getElementById("reactionSection");
+
+				a?.classList.toggle("used", action == 0);
+				b?.classList.toggle("used", bonusAction == 0);
+				r?.classList.toggle("used", reaction == 0);
+
+				document.getElementById("useActionBtn")?.classList.toggle("disabled", action == 0);
+				document.getElementById("useBonusActionBtn")?.classList.toggle("disabled", bonusAction == 0);
+				document.getElementById("useReactionBtn")?.classList.toggle("disabled", reaction == 0);
+			}
+
+			function explainExhaustion(){
+				alert("While you are exhauted, you recieve the following effects: -2 times your exhaustion level to D20 tests and -5ft times your exhaustion level to your movement speed. At 6 levels of exhaustion, you die.");
+				return;
+			}
+
+			function renderOtherResources(resources, containerId) {
+				const container = document.getElementById(containerId);
+				container.innerHTML = "";
+
+				resources.forEach(resource => {
+					if (resource.current === undefined) {
+						resource.current = resource.resourceAmount;
+					}
+
+					const row = document.createElement("div");
+					row.className = "resource-row";
+					row.innerHTML = `<strong>${resource.resourceName}:</strong>`;
+
+					const tokens = document.createElement("div");
+					tokens.className = "tokens";
+
+					for (let i = 1; i <= resource.resourceAmount; i++) {
+						const token = document.createElement("div");
+						token.className = "token " + (i <= resource.current ? "filled" : "empty");
+
+						token.onclick = () => {
+							resource.current = i <= resource.current ? i - 1 : i;
+							renderOtherResources(resources, containerId);
+						};
+
+						tokens.appendChild(token);
+					}
+
+					row.appendChild(tokens);
+					container.appendChild(row);
+				});
+			}
+
+			function checkButtonFunctions(){
+				document.querySelectorAll("button[onclick]").forEach(btn => {
+					const fn = btn.getAttribute("onclick").replace("()", "");
+					if(typeof window[fn] !== "function"){
+						console.warn(`Missing function: ${fn}`);
+					}
+				});
+			}
+			function blind(){
+				alert("While blinded, you can't see and have disadvantage on attack rolls. You fail any ability checks that require sight and attack rolls against you have advantage.");
+				return;
+			}
+
+			function charm(){
+				alert("While charmed, you cannot harm the charmer with damaging or magical effects. The charmer has advantage on any ability check to interact with you socially.");
+				return;
+			}
+
+			function deaf(){
+				alert("While deafened, you cannot hear and fail any ability check that requires hearing.");
+				return;
+			}
+
+			function frightened(){
+				alert("While frightened, you have disadvantage on ability checks and attack rolls while the source of fear is within line of sight. You cannot move closer to your source of fear.");
+				return;
+			}
+
+			function grappled(){
+				alert("While grappled, your speed is 0 and it cannot increase. You have disadvantage on attack rolls to targets outside of whatever is grappling you. The grappler can drag or carry you when it moves, but every 1 foot of movement costs an extra 1 foot unless you are Tiny or more than 2 sizes smaller than your grappler.");
+				return;
+			}
+
+			function incapacitated(){
+				alert("While incapacitated, you cannot take actions, bonus actions, or reactions. You cannot speak and your concentration is broken. You roll disadvantage on initiative.");
+				return;
+			}
+
+			function invisible(){
+				alert("While invisible, you have advantage on initiative. Equipment you are wearing is also invisible and you aren't affected by any effect that requires you to be seen unless the effect's creator can see you. Attack rolls against you have disadvantage while yours have advantage unless the creature can see you.");
+				return;
+			}
+
+			function paralyzed(){
+				alert("While paralyzed, you have the incapacitated condition as well. Your speed is 0 and can't increase, you automatically fail strength and dexterity saving throws, attacks against you have advantage, and any attack that hits you is a critical hit if the attacker is within 5ft of you.");
+				return;
+			}
+
+			function petrified(){
+				alert("You and any nonmagical objects you have on you are transformed into a solid inanimate substance. Your weight increases by ten, you stop aging, and you gain the incapacitated condition. Your speed is 0 and can't increase, attack rolls against you have advantage, you automatically fail strength and dexterity saving throws. You do, however, have resistance to all damage and are immune to the poisoned condition");
+				return;
+			}
+
+			function poison(){
+				alert("While poisoned, you have disadvantage on attack rolls and ability checks");
+				return;
+			}
+
+			function prone(){
+				alert("While prone, you can only move by crawling or spend half your movement speed, rounded down, to stand back up. If your speed is 0, you cannot stand up. You have disadvantage on attack rolls and attacks against you have advantage within 5ft of you. Otherwise, the attack has disadvantage.");
+				return;
+			}
+
+			function restrained(){
+				alert("While restrained, your speed is 0 and cannot increase. Attack rolls made against you have advantage, your attack rolls and dexterity saving throws have disadvantage.");
+				return;
+			}
+
+			function stunned(){
+				alert("While you are stunned, you also have the incapacitated condition. You automatically fail strength and dexterity saving throws and attacks made against you have advantage.");
+				return;
+			}
+
+			function unconscious(){
+				alert("While unconcious, you also have both the incapacitated and prone condition. You drop whatever you are holding and remain prone whenever this condition ends. Your speed is 0 and cannot increase, attacks against you have advantage, you automatically fail strength and dexterity saving throws, any attack roll that hits you is a critical hit if the attacker is within 5ft of you, and you are unaware of your surroundings.");
+				return;
+			}
+
+			loadCharacterList();
 			checkButtonFunctions();
 			
-		}
-
-		function beginTurn(){
-			action = bonusAction = reaction = 1;
-			alert("Your turn has begun and your action economy has reset")
-			updateActionUI();
-		}
-
-		function useAction(){
-			if(action == 0){
-				alert("You have already used your action this turn");
-			}
-			action = 0;
-			updateActionUI();
-		}
-
-		function shortRest(){
-			alert("You have short rested. If you have any resources or features that restore on a short rest, do so now. You recover up to half of your hit dice in hp.");
-			return;
-		}
-
-		function longRest(){
-			alert("You have long rested. Restore all resources and hit points.");
-			return;
-		}
-
-		function useBonusAction(){
-			if(bonusAction == 0){
-				alert("You have already used your bonus action this turn");
-			}
-			bonusAction = 0;
-			updateActionUI();
-		}
-
-		function useReaction(){
-			if(reaction == 0){
-				alert("You have already used your reaction this round");
-			}
-			reaction = 0;
-			updateActionUI();
-		}
-
-		function updateActionUI(){
-			const a = document.getElementById("actionSection");
-  			const b = document.getElementById("bonusActionSection");
-  			const r = document.getElementById("reactionSection");
-
-  			a?.classList.toggle("used", action == 0);
-  			b?.classList.toggle("used", bonusAction == 0);
-  			r?.classList.toggle("used", reaction == 0);
-
- 			document.getElementById("useActionBtn")?.classList.toggle("disabled", action == 0);
-  			document.getElementById("useBonusActionBtn")?.classList.toggle("disabled", bonusAction == 0);
-  			document.getElementById("useReactionBtn")?.classList.toggle("disabled", reaction == 0);
-		}
-
-		function explainExhaustion(){
-			alert("While you are exhauted, you recieve the following effects: -2 times your exhaustion level to D20 tests and -5ft times your exhaustion level to your movement speed. At 6 levels of exhaustion, you die.");
-			return;
-		}
-
-		function renderOtherResources(resources, containerId) {
-  			const container = document.getElementById(containerId);
-  			container.innerHTML = "";
-
-  			resources.forEach(resource => {
-    			if (resource.current === undefined) {
-      				resource.current = resource.resourceAmount;
-    			}
-
-    			const row = document.createElement("div");
-    			row.className = "resource-row";
-    			row.innerHTML = `<strong>${resource.resourceName}:</strong>`;
-
-    			const tokens = document.createElement("div");
-    			tokens.className = "tokens";
-
-    			for (let i = 1; i <= resource.resourceAmount; i++) {
-      				const token = document.createElement("div");
-      				token.className = "token " + (i <= resource.current ? "filled" : "empty");
-
-      				token.onclick = () => {
-        				resource.current = i <= resource.current ? i - 1 : i;
-        				renderOtherResources(resources, containerId);
-      				};
-
-      				tokens.appendChild(token);
-    			}
-
-    			row.appendChild(tokens);
-    			container.appendChild(row);
-  			});
-		}
-
-		function checkButtonFunctions(){
-			document.querySelectorAll("button[onclick]").forEach(btn => {
-				const fn = btn.getAttribute("onclick").replace("()", "");
-				if(typeof window[fn] !== "function"){
-					console.warn(`Missing function: ${fn}`);
-				}
-			});
-		}
-		function blind(){
-			alert("While blinded, you can't see and have disadvantage on attack rolls. You fail any ability checks that require sight and attack rolls against you have advantage.");
-			return;
-		}
-
-		function charm(){
-			alert("While charmed, you cannot harm the charmer with damaging or magical effects. The charmer has advantage on any ability check to interact with you socially.");
-			return;
-		}
-
-		function deaf(){
-			alert("While deafened, you cannot hear and fail any ability check that requires hearing.");
-			return;
-		}
-
-		function frightened(){
-			alert("While frightened, you have disadvantage on ability checks and attack rolls while the source of fear is within line of sight. You cannot move closer to your source of fear.");
-			return;
-		}
-
-		function grappled(){
-			alert("While grappled, your speed is 0 and it cannot increase. You have disadvantage on attack rolls to targets outside of whatever is grappling you. The grappler can drag or carry you when it moves, but every 1 foot of movement costs an extra 1 foot unless you are Tiny or more than 2 sizes smaller than your grappler.");
-			return;
-		}
-
-		function incapacitated(){
-			alert("While incapacitated, you cannot take actions, bonus actions, or reactions. You cannot speak and your concentration is broken. You roll disadvantage on initiative.");
-			return;
-		}
-
-		function invisible(){
-			alert("While invisible, you have advantage on initiative. Equipment you are wearing is also invisible and you aren't affected by any effect that requires you to be seen unless the effect's creator can see you. Attack rolls against you have disadvantage while yours have advantage unless the creature can see you.");
-			return;
-		}
-
-		function paralyzed(){
-			alert("While paralyzed, you have the incapacitated condition as well. Your speed is 0 and can't increase, you automatically fail strength and dexterity saving throws, attacks against you have advantage, and any attack that hits you is a critical hit if the attacker is within 5ft of you.");
-			return;
-		}
-
-		function petrified(){
-			alert("You and any nonmagical objects you have on you are transformed into a solid inanimate substance. Your weight increases by ten, you stop aging, and you gain the incapacitated condition. Your speed is 0 and can't increase, attack rolls against you have advantage, you automatically fail strength and dexterity saving throws. You do, however, have resistance to all damage and are immune to the poisoned condition");
-			return;
-		}
-
-		function poison(){
-			alert("While poisoned, you have disadvantage on attack rolls and ability checks");
-			return;
-		}
-
-		function prone(){
-			alert("While prone, you can only move by crawling or spend half your movement speed, rounded down, to stand back up. If your speed is 0, you cannot stand up. You have disadvantage on attack rolls and attacks against you have advantage within 5ft of you. Otherwise, the attack has disadvantage.");
-			return;
-		}
-
-		function restrained(){
-			alert("While restrained, your speed is 0 and cannot increase. Attack rolls made against you have advantage, your attack rolls and dexterity saving throws have disadvantage.");
-			return;
-		}
-
-		function stunned(){
-			alert("While you are stunned, you also have the incapacitated condition. You automatically fail strength and dexterity saving throws and attacks made against you have advantage.");
-			return;
-		}
-
-		function unconscious(){
-			alert("While unconcious, you also have both the incapacitated and prone condition. You drop whatever you are holding and remain prone whenever this condition ends. Your speed is 0 and cannot increase, attacks against you have advantage, you automatically fail strength and dexterity saving throws, any attack roll that hits you is a critical hit if the attacker is within 5ft of you, and you are unaware of your surroundings.");
-			return;
-		}
-
-		loadCharacterList();
-		checkButtonFunctions();
-		
-	</script>
-</body>
+		</script>
+	</body>
 </html>
