@@ -705,7 +705,7 @@
 				alert('Character successfully updated and ready to view');
 			}
 
-			function saveCharacterAsFile() {
+			async function saveCharacterAsFile() {
 
 				if (currentCharacterIndex === null) {
 					alert("No character selected.");
@@ -717,11 +717,32 @@
 					return;
 				}
 				const jsonString = JSON.stringify(character, null, 4);
-				const blob = new Blob([jsonString], {
+				/*const blob = new Blob([jsonString], {
 					type: "application/json"
-				});
+				});*/
+				const filename = character.name
+						? `${character.name.replace(/\s+/g, "_")}.json`
+						: "character.json";
+				try{
+					const handle = await window.showSaveFilePicker({
+						suggestedName: filename,
+						types:[{
+							description: "JSON Files",
+							accept:{"application/json": [".json"]} 
+						}]
+					});
 
-				const url = URL.createObjectURL(blob);
+					const writable = await handle.createWritable();
+					await writable.write(jsonString);
+					await writable.close();
+				}catch(error){
+					if(error.name == "AbortError"){
+						return;
+					}
+					console.error("Error saving character:", error);
+        			alert("Could not save the character.");
+				}
+				/*const url = URL.createObjectURL(blob);
 				const link = document.createElement("a");
 				link.href = url;
 				const filename = character.name
@@ -731,7 +752,7 @@
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);
-				URL.revokeObjectURL(url);
+				URL.revokeObjectURL(url);*/
 			}
 
 			function deleteSelectedCharacter() {

@@ -7,7 +7,7 @@ body {
 
 .home-container {
   text-align: center;
-  background: #2a2a32;
+  background: """#2a2a32 original color""" #ffffff;
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.4);
@@ -15,7 +15,7 @@ body {
 }
 
 .home-container h1 {
-  color: #c7d2fe;
+  color: """#c7d2fe""" black;
   margin-bottom: 1rem;
 }
 
@@ -34,5 +34,5 @@ body {
 .home-container p {
   margin-top: 1.5rem;
   font-size: 0.85rem;
-  color: #a1a1aa;
+  color: """#a1a1aa""" #000000;
 }
