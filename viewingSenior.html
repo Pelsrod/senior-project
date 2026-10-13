@@ -322,7 +322,10 @@
 			function useAction(){
 				if(action == 0){
 					alert("You have already used your action this turn");
+					return;
 				}
+				const choice = prompt("Which action would you like to use?");
+				alert("This turn you are using the " + choice + " action.");
 				action = 0;
 				updateActionUI();
 			}
@@ -340,7 +343,10 @@
 			function useBonusAction(){
 				if(bonusAction == 0){
 					alert("You have already used your bonus action this turn");
+					return;
 				}
+				const choice = prompt("Which bonus action would you like to use?");
+				alert("This turn you are using the " + choice + " bonus action.");
 				bonusAction = 0;
 				updateActionUI();
 			}
@@ -348,7 +354,10 @@
 			function useReaction(){
 				if(reaction == 0){
 					alert("You have already used your reaction this round");
+					return;
 				}
+				const choice = prompt("Which reaction would you like to use?");
+				alert("This turn you are using the " + choice + " reaction.");
 				reaction = 0;
 				updateActionUI();
 			}

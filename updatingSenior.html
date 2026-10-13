@@ -23,7 +23,7 @@
 			<ul>
 				<li><button onclick = "updateSelectedCharacter()">Update Selected Character</button></li>
 				<li><button onclick = "updateCharacterFile()">Update Inserted Character</button></li>
-				<li><button onclick = "createCharacterFile()">Create Character File</button></li>
+				<li><button onclick = "saveCharacterAsFile()">Create Character File</button></li>
 				<li><button onclick = "deleteSelectedCharacter()">Remove selected Character</button></li>
 				<li><select id = "characterDropdown"></select></li>
 				<li>Insert Exported Character:<input class="characterToView" type="file" id="characterFile" accept = ".json"></li>
@@ -208,8 +208,17 @@
 
 						const importedCharacter =
 							JSON.parse(e.target.result);
+						
+						let characters = JSON.parse(localStorage.getItem("characters") || "[]");
 
-						characters.push(importedCharacter);
+						const existingIndex = characters.findIndex(character => character.name ===importedCharacter.name);
+						if(existingIndex !== -1){
+							characters[existingIndex] = importedCharacter
+							alert("Character updated!")
+						}else{
+							characters.push(importedCharacter);
+							alert("Character imported!");
+						}
 
 						localStorage.setItem(
 							"characters",
@@ -218,14 +227,14 @@
 
 						loadCharacterList();
 
-						currentCharacterIndex = characters.length-1;
+						currentCharacterIndex = existingIndex !== -1
+                			? existingIndex
+                			: characters.length - 1;
 
-						renderCharacter(importedCharacter);
-
-						alert("Character imported!");
-
-					}catch{
+						renderCharacter(characters[currentCharacterIndex]);
+					}catch(error){
 						alert("Invalid JSON file.");
+						console.error(error);
 					}
 				};
 
@@ -700,11 +709,6 @@
 				updateSelectedCharacter();
 			}
 
-			function createCharacterFile(){
-				saveCharacterAsFile();
-				alert('Character successfully updated and ready to view');
-			}
-
 			async function saveCharacterAsFile() {
 
 				if (currentCharacterIndex === null) {
@@ -717,9 +721,6 @@
 					return;
 				}
 				const jsonString = JSON.stringify(character, null, 4);
-				/*const blob = new Blob([jsonString], {
-					type: "application/json"
-				});*/
 				const filename = character.name
 						? `${character.name.replace(/\s+/g, "_")}.json`
 						: "character.json";
@@ -735,6 +736,7 @@
 					const writable = await handle.createWritable();
 					await writable.write(jsonString);
 					await writable.close();
+					alert('Character successfully updated and ready to view');
 				}catch(error){
 					if(error.name == "AbortError"){
 						return;
@@ -742,17 +744,6 @@
 					console.error("Error saving character:", error);
         			alert("Could not save the character.");
 				}
-				/*const url = URL.createObjectURL(blob);
-				const link = document.createElement("a");
-				link.href = url;
-				const filename = character.name
-					? `${character.name.replace(/\s+/g, "_")}.json`
-					: "character.json";
-				link.download = filename;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				URL.revokeObjectURL(url);*/
 			}
 
 			function deleteSelectedCharacter() {
